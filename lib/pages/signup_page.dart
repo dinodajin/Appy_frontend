@@ -3,8 +3,8 @@ import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({
     super.key,
   });
 
@@ -23,7 +23,7 @@ class LoginPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "로그인",
+                            "회원가입",
                             style: TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.w700,
@@ -52,10 +52,10 @@ class LoginPage extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (context) => const AddModulePage()));
                         },
-                        // 모두 입력했을 때만 로그인 버튼 활성화하기
+                        // 모두 입력했을 때만 회원가입 버튼 활성화하기
                         //
                         child: BuildButton(
-                            "로그인", AppColors.accent, AppColors.textWhite),
+                            "회원가입", AppColors.accent, AppColors.textWhite),
                       ),
                     ]))));
   }

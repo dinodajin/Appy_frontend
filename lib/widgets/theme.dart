@@ -12,6 +12,7 @@ class AppColors {
   static const Color textLight = Color(0xffCECCCA);
   static const Color textWhite = Colors.white;
   static const Color icon = Color(0xff83807C);
+  static const Color homeBackground = Color(0xffE3EFF2); //홈, 에피, 모듈맵 배경
 }
 
 class IconSize {
@@ -25,12 +26,8 @@ class TextSize {
   static const double large = 26.0;
   static const double medium = 20.0;
   static const double small = 16.0;
-
 }
 
 class AppPadding {
   static const body = EdgeInsets.all(15);
 }
-
-  
-
