@@ -69,7 +69,7 @@ class _buildFeedButton extends StatelessWidget {
             height: 5,
           ),
           Container(
-            width: 100,
+            width: 105,
             child: Center(
               child: Text(
                 "사탕 주기",

@@ -1,3 +1,4 @@
+import 'package:appy_app/pages/diary_page.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,38 @@ class _GiftPageState extends State<GiftPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [],
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const DiaryPage()));
+                },
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.iconBackgroundRight,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                          color: AppColors.iconBackground,
+                          blurRadius: 2.0,
+                          spreadRadius: 2.0,
+                          offset: Offset(
+                            1,
+                            2,
+                          )),
+                    ],
+                  ),
+                  child: Image.asset(
+                    "assets/icons/gift_star.png",
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),
