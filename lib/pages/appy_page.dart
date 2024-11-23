@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:appy_app/pages/chat_page.dart';
 import 'package:appy_app/pages/gift_page.dart';
@@ -18,6 +19,30 @@ class AppyPage extends StatefulWidget {
 }
 
 class _AppyPageState extends State<AppyPage> {
+  // 텍스트 리스트
+  final List<String> texts = [
+    "안녕! 좋은 아침이야. 오늘도 행복한 하루 보내!",
+    "오늘은 무엇을 해볼까? 멋진 하루가 될 거야!",
+    "힘들 땐 잠시 쉬어도 괜찮아. 넌 잘하고 있어!",
+    "모든 순간을 즐겨봐. 넌 특별한 사람이야!",
+    "파이팅! 오늘도 최선을 다해보자!"
+  ];
+
+  late String randomText;
+  bool _isAnimating = false; // 애니메이션 상태 플래그
+
+  @override
+  void initState() {
+    super.initState();
+    _getRandomText(); // 초기화 시 랜덤 텍스트 설정
+  }
+
+  // 랜덤 텍스트 선택
+  void _getRandomText() {
+    final random = Random();
+    randomText = texts[random.nextInt(texts.length)];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,19 +80,32 @@ class _AppyPageState extends State<AppyPage> {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        //말풍선 영역
                         Container(
-                          height: 150,
-                          child: const SpeechBubble(
-                            text: "안녕! 좋은 아침이야. 오늘도 행복한 하루 보내!",
+                          height: 10,
+                        ),
+                        //말풍선 영역
+                        GestureDetector(
+                          onTap: () {
+                            if (!_isAnimating) {
+                              setState(() {
+                                _getRandomText(); //말풍선 클릭시 텍스트 변경
+                                _isAnimating = true; // 애니메이션 시작
+                              });
+                            }
+                          },
+                          child: Container(
+                            height: 90,
+                            child: SpeechBubble(
+                                text: randomText,
+                                onAnimationEnd: () {
+                                  setState(() {
+                                    _isAnimating = false; //애니메이션 종료
+                                  });
+                                }),
                           ),
-                          // height: 100,
-                          // child: Text(
-                          //   "오늘도 좋은 하루 보내!",
-                          //   style: TextStyle(
-                          //     fontSize: TextSize.small,
-                          //   ),
-                          // ),
+                        ),
+                        Container(
+                          height: 30,
                         ),
                         // 에피 영역
                         Row(
@@ -308,11 +346,13 @@ class SpeechBubble extends StatefulWidget {
   final String text;
   final Duration duration;
   final double maxWidth; // 최대 가로 길이
+  final VoidCallback? onAnimationEnd; // 애니메이션 종료 콜백
 
   const SpeechBubble({
     required this.text,
     this.duration = const Duration(milliseconds: 100),
     this.maxWidth = 310,
+    this.onAnimationEnd,
     Key? key,
   }) : super(key: key);
 
@@ -322,8 +362,8 @@ class SpeechBubble extends StatefulWidget {
 
 class _SpeechBubbleState extends State<SpeechBubble> {
   String displayedText = "";
-  double bubbleWidth = 70; // 초기 말풍선 크기
-  double bubbleHeight = 90;
+  double bubbleWidth = 80; // 초기 말풍선 크기
+  Timer? _typingTimer; // 기존 타이머를 관리하기 위한 변수
 
   @override
   void initState() {
@@ -331,24 +371,52 @@ class _SpeechBubbleState extends State<SpeechBubble> {
     _startTyping();
   }
 
+  @override
+  void didUpdateWidget(SpeechBubble oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text) {
+      _resetTyping();
+    }
+  }
+
   void _startTyping() {
     int index = 0;
-    Timer.periodic(widget.duration, (timer) {
+
+    // 기존 타이머 취소
+    _typingTimer?.cancel();
+
+    // 텍스트 초기화
+    setState(() {
+      displayedText = "";
+      bubbleWidth = 70; // 초기 크기
+    });
+
+    // 타이핑 애니메이션 시작
+    _typingTimer = Timer.periodic(widget.duration, (timer) {
       if (index < widget.text.length) {
         setState(() {
           displayedText += widget.text[index];
-          index++;
-          double calWidth =
-              displayedText.length * 12.0 + 70; // 글자 수에 따라 가로 크기 증가
-          // 텍스트 길이에 따라 크기 조정
+          double calWidth = displayedText.length * 13.0 + 80; // 글자 수에 따라 크기 증가
           bubbleWidth = calWidth > widget.maxWidth
               ? widget.maxWidth
-              : calWidth; // 최대 가로까지만 허용
+              : calWidth; // 최대 크기 제한
+          index++;
         });
       } else {
         timer.cancel();
+        widget.onAnimationEnd?.call(); // 애니메이션 종료 시 콜백 호출
       }
     });
+  }
+
+  void _resetTyping() {
+    _startTyping();
+  }
+
+  @override
+  void dispose() {
+    _typingTimer?.cancel(); // 타이머 취소
+    super.dispose();
   }
 
   @override
@@ -357,8 +425,8 @@ class _SpeechBubbleState extends State<SpeechBubble> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        alignment: Alignment.center, // 컨테이너 내부 내용 가운데 정렬
         width: bubbleWidth,
-        height: bubbleHeight,
         decoration: BoxDecoration(
           color: AppColors.background,
           borderRadius: BorderRadius.circular(15),
@@ -371,17 +439,16 @@ class _SpeechBubbleState extends State<SpeechBubble> {
             ),
           ],
         ),
-        child: Center(
-          child: Text(
-            displayedText,
-            style: const TextStyle(
-                color: AppColors.textHigh,
-                fontSize: TextSize.small,
-                fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+        child: Text(
+          displayedText,
+          style: const TextStyle(
+            color: AppColors.textHigh,
+            fontSize: TextSize.small,
+            fontWeight: FontWeight.bold,
           ),
+          textAlign: TextAlign.center, // 텍스트 가운데 정렬
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
