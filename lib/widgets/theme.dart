@@ -13,6 +13,7 @@ class AppColors {
   static const Color textWhite = Colors.white;
   static const Color icon = Color(0xff83807C);
   static const Color detailIcon = Color(0xff83807C);
+  static const Color grey200 = Color(0xffE7E6E5);
   static const Color homeBackground = Color(0xffE3EFF2); //홈, 에피, 모듈맵 배경
   static const Color iconShadow = Color(0xffDEDEDE);
 }

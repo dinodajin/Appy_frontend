@@ -103,6 +103,23 @@ AppBar BuildBigAppBar(BuildContext context, String title, String imagePath) {
     backgroundColor: AppColors.primary,
     toolbarHeight: 140,
     centerTitle: true,
+    flexibleSpace: Container(
+      decoration: BoxDecoration(
+        color: AppColors.primary, // AppBar 배경색
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(10), // 하단 둥근 처리
+          bottomRight: Radius.circular(10),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0C0C0D).withOpacity(0.03), // 그림자 색상
+            offset: const Offset(0, 3), // 그림자 위치
+            blurRadius: 4, // 흐림 정도
+            spreadRadius: 0, // 확산 정도
+          ),
+        ],
+      ),
+    ),
     leading: IconButton(
         onPressed: () {
           Navigator.pop(context); //이전 페이지로 돌아가기

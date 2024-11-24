@@ -168,7 +168,7 @@ class _buildGiftButton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset(
-            "assets/icons/gift_box.png",
+            "assets/icons/gift/gift_box.png",
             width: 60,
           ),
           Container(

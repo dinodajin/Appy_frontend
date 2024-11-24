@@ -20,7 +20,11 @@ class _ChatPageState extends State<ChatPage> {
       "time": "2024-11-18 12:27:00",
       "type": "system"
     },
-    {"text": "드림아 안녕.", "time": "2024-11-19 15:10:00", "type": "user"},
+    {
+      "text": "드림아 안녕. 오늘 하루는 어땠어?",
+      "time": "2024-11-19 15:10:00",
+      "type": "user"
+    },
     {
       "text":
           "기다리고 있었어! 오늘 하루는 어땠어? 기다리고 있었어! 오늘 하루는 어땠어? 기다리고 있었어! 오늘 하루는 어땠어?",
@@ -178,7 +182,7 @@ class _ChatPageState extends State<ChatPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isUser ? Colors.grey[200] : AppColors.accent,
+                  color: isUser ? AppColors.grey200 : AppColors.accent,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(10),
                     topRight: const Radius.circular(10),
@@ -210,14 +214,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildChatInput() {
-    Color sendButtonColor = Colors.grey[300]!; // 초기 버튼 색상
+    Color sendButtonColor = AppColors.grey200; // 초기 버튼 색상
 
     return StatefulBuilder(
       builder: (context, setState) {
         return Container(
           height: 107, // 전체 입력창 높이 설정
           decoration: BoxDecoration(
-            color: const Color(0xFFFFFDFA), // 전체 배경색 설정
+            color: AppColors.background, // 전체 배경색 설정
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -239,7 +243,7 @@ class _ChatPageState extends State<ChatPage> {
                   width: 353,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F5F2), // 입력칸 배경색 설정
+                    color: AppColors.iconBackground, // 입력칸 배경색 설정
                     borderRadius: BorderRadius.circular(40), // 둥근 모서리 설정
                     boxShadow: [
                       BoxShadow(
@@ -256,12 +260,16 @@ class _ChatPageState extends State<ChatPage> {
                       setState(() {
                         // 텍스트 입력 상태에 따른 버튼 색상 변경
                         sendButtonColor = text.isEmpty
-                            ? Colors.grey[300]!
-                            : const Color(0xFF63D8C0);
+                            ? AppColors.grey200!
+                            : AppColors.accent;
                       });
                     },
                     decoration: InputDecoration(
                       hintText: "메시지를 입력하세요...", // 힌트 텍스트
+                      hintStyle: TextStyle(
+                        fontSize: TextSize.small, // 글자 크기
+                        color: Color(0xffB8B8B8), // 텍스트 색상
+                      ),
                       border: InputBorder.none, // 입력칸 경계선 제거
                       contentPadding: const EdgeInsets.symmetric(
                         vertical: 10.0,
@@ -278,7 +286,7 @@ class _ChatPageState extends State<ChatPage> {
                     _handleSendMessage();
                     setState(() {
                       // 메시지 전송 후 버튼 색상 초기화
-                      sendButtonColor = Colors.grey[300]!;
+                      sendButtonColor = AppColors.grey200!;
                     });
                   }
                 },
@@ -300,7 +308,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: const Icon(
                     Icons.arrow_upward, // 화살표 아이콘
                     color: Colors.white, // 아이콘 색상
-                    size: 20,
+                    size: 30,
                   ),
                 ),
               ),
@@ -329,43 +337,59 @@ class _ChatPageState extends State<ChatPage> {
 
   PreferredSize BuildChatAppBar(BuildContext context, String appyName) {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(70), // AppBar 높이 설정
-      child: Column(
-        children: [
-          AppBar(
-            backgroundColor: AppColors.primary, // AppBar 배경색
-            scrolledUnderElevation: 0, // 스크롤로 인한 그림자 제거
-            elevation: 0, // 기본 그림자 제거
-            automaticallyImplyLeading: false, // 기본 뒤로가기 버튼 설정 방지
-            leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context); // 이전 페이지로 돌아가기
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                size: IconSize.medium,
-                color: AppColors.icon, // 아이콘 색상 통합
-              ),
+      preferredSize: const Size.fromHeight(70), // AppBar 높이
+      child: Container(
+        height: 70, // AppBar 높이 명시적으로 설정
+        decoration: BoxDecoration(
+          color: AppColors.primary, // AppBar 배경색
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(10), // 하단 둥근 처리
+            bottomRight: Radius.circular(10),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0C0C0D).withOpacity(0.03), // 그림자
+              offset: const Offset(0, 3),
+              blurRadius: 4,
+              spreadRadius: 0,
             ),
-            title: Row(
-              children: [
-                BuildChatImage("assets/images/appy_levi.png"), // 아바타 추가
-                const SizedBox(width: 19), // 아바타와 텍스트 사이 여백
-                Text(
-                  appyName,
-                  style: const TextStyle(
-                    fontFamily: 'SUITE',
-                    fontSize: TextSize.large,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textHigh, // 텍스트 색상
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0), // 가로 여백 추가
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // 좌우 정렬
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context); // 뒤로가기
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      size: IconSize.medium,
+                      color: AppColors.icon,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            actions: [
+                  // const SizedBox(width: 8), // 버튼과 이미지 간격
+                  BuildChatImage("assets/images/appy_levi.png"), // 아바타 추가
+                  const SizedBox(width: 19), // 이미지와 텍스트 간격
+                  Text(
+                    appyName,
+                    style: const TextStyle(
+                      fontFamily: 'SUITE',
+                      fontSize: TextSize.large,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textHigh,
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 onPressed: () {
-                  // 검색 버튼 클릭 시 이벤트
+                  // 검색 버튼
                 },
                 icon: Icon(
                   Icons.search,
@@ -375,27 +399,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ],
           ),
-          // AppBar 하단 둥근 처리 및 그림자 추가
-          Container(
-            height: 10, // 둥근 처리 영역 높이
-            decoration: BoxDecoration(
-              color: AppColors.primary, // 배경색
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(10), // 왼쪽 하단 둥글게 처리
-                bottomRight: Radius.circular(10), // 오른쪽 하단 둥글게 처리
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      const Color(0xFF0C0C0D).withOpacity(0.03), // 그림자 색상과 투명도
-                  offset: const Offset(0, 3), // 그림자 위치
-                  blurRadius: 4, // 흐림 정도
-                  spreadRadius: 0, // 확산 정도
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
