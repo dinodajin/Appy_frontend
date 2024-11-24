@@ -22,7 +22,6 @@ class AppyPage extends StatefulWidget {
 }
 
 class _AppyPageState extends State<AppyPage> {
-  
   String appyName = "레비";
 
   // 말풍선 텍스트 리스트
@@ -37,11 +36,11 @@ class _AppyPageState extends State<AppyPage> {
   ];
 
   final List<String> snackTexts = [
-  "옴뇸뇸 맛있당",
-  "고마워! 너도 하나 먹을래?",
-  "내가 제일 좋아하는 맛이야!",
-  "혹시 다른 맛은 없어...? 농담이야!",
-  "사탕도 좋고 너도 좋아!"
+    "옴뇸뇸 맛있당",
+    "고마워! 너도 하나 먹을래?",
+    "내가 제일 좋아하는 맛이야!",
+    "혹시 다른 맛은 없어...? 농담이야!",
+    "사탕도 좋고 너도 좋아!"
   ];
 
   late String randomText;
@@ -80,11 +79,12 @@ class _AppyPageState extends State<AppyPage> {
       currentCandyNum--;
       currentProgressNum += 1; // 단계별 증가
 
-     // 말풍선 텍스트를 간식 텍스트 중 랜덤하게 선택
-     _getRandomText(snackTexts);
+      // 말풍선 텍스트를 간식 텍스트 중 랜덤하게 선택
+      _getRandomText(snackTexts);
 
       if (currentProgressNum >= maxSteps) {
         _showCompletionDialog(); // 최대값 도달 시 팝업 호출
+        currentProgressNum = 0; // 진행 상태 초기화
       }
     });
   }
@@ -108,7 +108,6 @@ class _AppyPageState extends State<AppyPage> {
           actions: [
             TextButton(
               onPressed: () {
-                currentProgressNum = 0; // 진행 상태 초기화
                 Navigator.of(context).pop(); // 팝업 닫기
                 setState(() {
                   _isNewGift = true;
@@ -575,7 +574,6 @@ class _AppyPageState extends State<AppyPage> {
         ));
   }
 }
-
 
 class SpeechBubble extends StatefulWidget {
   final String text;
