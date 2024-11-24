@@ -51,6 +51,7 @@ class _AddModulePageState extends State<AddModulePage> {
               Container(
                 height: 50,
               ),
+              // QR 코드 카메라 촬영 기능
               Container(
                 color: AppColors.buttonDisabled,
                 width: 230,

@@ -5,11 +5,16 @@ import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 
 //에피 모여있는 페이지
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
   });
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,13 +35,31 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(height: 300),
+                //등록된 에피 불러와서 이미지로 모두 표시하기
+                //각 이미지에 해당하는 에피 아이디 연결
                 GestureDetector(
                   onTap: () {
                     // 페이지 이동
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const AppyPage()));
+                            builder: (context) =>
+                                const AppyPage(appyID: "001")));
+                  },
+                  child: Image.asset(
+                    "assets/images/appy_levi.png",
+                    width: 100,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // 페이지 이동
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AppyPage(
+                                  appyID: "002",
+                                )));
                   },
                   child: Image.asset(
                     "assets/images/appy_levi.png",

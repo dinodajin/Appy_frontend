@@ -134,3 +134,24 @@ AppBar BuildBigAppBar(BuildContext context, String title, String imagePath) {
     ),
   );
 }
+
+
+// Container BuildInteractionButton(String buttonName) {
+//   return Container(
+//           width: 100,
+//           height: 120,
+//           decoration: BoxDecoration(
+//             color: AppColors.iconBackground,
+//             borderRadius: BorderRadius.circular(10),
+//           ),
+//           alignment: Alignment.center,
+//           child: Text(
+//             buttonName,
+//             style: const TextStyle(
+//               color: AppColors.textHigh,
+//               fontSize: TextSize.tiny,
+//               fontWeight: FontWeight.w500,
+//             ),
+//           ),
+//         );
+// }
