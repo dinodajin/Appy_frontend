@@ -38,7 +38,7 @@ class _GiftPageState extends State<GiftPage> {
       appBar: BuildBigAppBar(
         context,
         "래비의 선물함",
-        "assets/icons/gift/gift_box.png",
+        "assets/icons/gift_box.png",
       ),
       body: SafeArea(
         child: Padding(
