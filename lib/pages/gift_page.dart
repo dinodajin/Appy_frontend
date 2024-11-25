@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class GiftPage extends StatefulWidget {
   final int characterId = 1; // 캐릭터 ID 전달
-  final int characterLevel = 7; // 해당 캐릭터의 레벨
+  final int characterLevel = 5; // 해당 캐릭터의 레벨
   const GiftPage({super.key});
 
   @override
