@@ -321,10 +321,10 @@ class _AppyPageState extends State<AppyPage> {
                                 animateFromLastPercent: true,
                                 lineHeight: 30.0,
                                 percent: currentProgressNum / maxSteps,
-                                center: Text('$currentProgressNum',
-                                    style: TextStyle(
-                                      color: AppColors.textWhite,
-                                    )),
+                                // center: Text('$currentProgressNum',
+                                //     style: TextStyle(
+                                //       color: AppColors.textWhite,
+                                //     )),
                                 barRadius: Radius.circular(15.0),
                                 progressColor: AppColors.accent,
                               ),
