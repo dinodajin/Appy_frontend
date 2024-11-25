@@ -12,6 +12,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
+  // 메세지 임시용
   final List<Map<String, String>> messages = [
     {"text": "드림아, 오늘 기분 어때?", "time": "2024-11-25 09:00:00", "type": "user"},
     {"text": "좋아! 너는?", "time": "2024-11-25 09:01:00", "type": "system"},
@@ -115,7 +116,72 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   // 검색 상태 관리
   bool _isSearchMode = false;
+  // 검색 키워드 관리 뿌이....
   String _searchQuery = "";
+  int _currentHighlightedIndex = 0;
+  List<int> _highlightedMessageIndices = [];
+
+  void _searchMessages(String query) {
+    setState(() {
+      _searchQuery = query;
+      _highlightedMessageIndices = [];
+      _currentHighlightedIndex = 0;
+
+      // 검색 키워드를 포함한 메시지 인덱스 수집
+      for (int i = 0; i < messages.length; i++) {
+        if (messages[i]["text"]!.toLowerCase().contains(query.toLowerCase())) {
+          _highlightedMessageIndices.add(i);
+        }
+      }
+    });
+
+    // 검색된 메시지가 있다면 첫 번째로 이동
+    if (_highlightedMessageIndices.isNotEmpty) {
+      _scrollToMessage(_highlightedMessageIndices[_currentHighlightedIndex]);
+    }
+  }
+
+  void _scrollToMessage(int index) {
+    if (_scrollController.hasClients) {
+      // 해당 메시지로 스크롤 이동
+      _scrollController.animateTo(
+        index * 70.0, // 메시지 하나의 예상 높이 (필요에 따라 조정)
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _moveToNextHighlight() {
+    if (_highlightedMessageIndices.isNotEmpty) {
+      setState(() {
+        _currentHighlightedIndex =
+            (_currentHighlightedIndex + 1) % _highlightedMessageIndices.length;
+      });
+      _scrollToMessage(_highlightedMessageIndices[_currentHighlightedIndex]);
+    }
+  }
+
+  void _moveToPreviousHighlight() {
+    if (_highlightedMessageIndices.isNotEmpty) {
+      setState(() {
+        _currentHighlightedIndex =
+            (_currentHighlightedIndex - 1 + _highlightedMessageIndices.length) %
+                _highlightedMessageIndices.length;
+      });
+      _scrollToMessage(_highlightedMessageIndices[_currentHighlightedIndex]);
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -153,16 +219,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     }
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,11 +239,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   children: [
                     _buildDateLabel(date),
                     ...dayMessages.map((message) {
-                      return _buildChatBubble(
-                        message["text"]!,
-                        message["time"]!,
-                        message["type"] == "user",
-                      );
+                      return _buildChatBubble(message["text"]!,
+                          message["time"]!, message["type"] == "user", index);
                     }).toList(),
                   ],
                 );
@@ -206,7 +259,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         backgroundColor: AppColors.primary,
         toolbarHeight: 70,
         elevation: 0,
-        scrolledUnderElevation: 0, // 스크롤 시 추가 elevation 제거
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.search, color: AppColors.icon),
+          onPressed: () {
+            setState(() {
+              _isSearchMode = false;
+              _searchQuery = "";
+            });
+          },
+        ),
         title: TextField(
           autofocus: true,
           onChanged: (value) {
@@ -223,11 +285,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.close, color: AppColors.icon),
+            icon: const Icon(Icons.arrow_upward),
+            onPressed: _moveToPreviousHighlight,
+          ),
+          IconButton(
+            icon: const Icon(Icons.arrow_downward),
+            onPressed: _moveToNextHighlight,
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
             onPressed: () {
               setState(() {
                 _isSearchMode = false;
                 _searchQuery = "";
+                _highlightedMessageIndices.clear();
               });
             },
           ),
@@ -320,23 +391,27 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildChatBubble(String text, String time, bool isUser) {
+  Widget _buildChatBubble(String text, String time, bool isUser, int index) {
     final parsedTime = DateFormat('HH:mm').format(DateTime.parse(time));
+    final isHighlighted = _highlightedMessageIndices.contains(index) &&
+        _highlightedMessageIndices[_currentHighlightedIndex] == index;
 
     // 검색된 단어 하이라이트
     List<TextSpan> _highlightText(String text, String query) {
-      if (query.isEmpty) {
-        return [TextSpan(text: text)];
-      }
-      final matches = text.toLowerCase().split(query.toLowerCase());
+      if (query.isEmpty) return [TextSpan(text: text)];
+
+      final matches = text.split(RegExp(query, caseSensitive: false));
       final spans = <TextSpan>[];
+
       for (var i = 0; i < matches.length; i++) {
         spans.add(TextSpan(text: matches[i]));
         if (i < matches.length - 1) {
           spans.add(TextSpan(
             text: query,
-            style:
-                const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              backgroundColor: Colors.black,
+              color: Colors.white,
+            ),
           ));
         }
       }
@@ -365,8 +440,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             children: [
               Container(
                 constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
-                ),
+                    maxWidth: MediaQuery.of(context).size.width * 0.7),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
@@ -528,7 +602,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
 Widget BuildChatImage(String imagePath, {double size = 46}) {
   return ClipRRect(
-    borderRadius: BorderRadius.circular(size / 2),
+    // borderRadius: BorderRadius.circular(size / 2),
     child: Image.asset(
       imagePath,
       width: size,
