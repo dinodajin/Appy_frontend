@@ -11,7 +11,7 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final List<Map<String, String>> messages = [
     {"text": "드림아 안녕.", "time": "2024-11-18 12:26:00", "type": "user"},
     {
@@ -68,6 +68,11 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     initializeDateFormatting('ko', null);
+
+// 키보드 이벤트 감지를 위해 Observer 등록
+    WidgetsBinding.instance.addObserver(this);
+
+    // 페이지가 처음 로드될 때 맨 아래로 스크롤
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
@@ -75,49 +80,69 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Observer 해제
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+
+    // 키보드 상태 변화 확인
+    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    if (bottomInset > 0.0) {
+      // 키보드가 열릴 때 스크롤 하단으로 이동
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollToBottom();
+      });
+    }
+  }
+
   void _scrollToBottom() {
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BuildChatAppBar(context, "래비"),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _groupMessagesByDate(messages).length,
-                itemBuilder: (context, index) {
-                  final date =
-                      _groupMessagesByDate(messages).keys.toList()[index];
-                  final dayMessages = _groupMessagesByDate(messages)[date]!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDateLabel(date),
-                      ...dayMessages.map((message) {
-                        return _buildChatBubble(
-                          message["text"]!,
-                          message["time"]!,
-                          message["type"] == "user",
-                        );
-                      }).toList(),
-                    ],
-                  );
-                },
-              ),
+      appBar: BuildChatAppBar(context, "레비"),
+      resizeToAvoidBottomInset: true, // 키보드 열릴 때 레이아웃 조정
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: _groupMessagesByDate(messages).length,
+              itemBuilder: (context, index) {
+                final date =
+                    _groupMessagesByDate(messages).keys.toList()[index];
+                final dayMessages = _groupMessagesByDate(messages)[date]!;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDateLabel(date),
+                    ...dayMessages.map((message) {
+                      return _buildChatBubble(
+                        message["text"]!,
+                        message["time"]!,
+                        message["type"] == "user",
+                      );
+                    }).toList(),
+                  ],
+                );
+              },
             ),
-            _buildChatInput(),
-          ],
-        ),
+          ),
+          _buildChatInput(), // 입력창 추가
+        ],
       ),
     );
   }
@@ -144,13 +169,14 @@ class _ChatPageState extends State<ChatPage> {
       child: Center(
         child: Text(
           formattedDate,
-          style: TextStyle(
+          style: const TextStyle(
+            fontFamily: 'SUITE',
             fontSize: TextSize.small,
             color: AppColors.textMedium,
           ),
         ),
       ),
-    );
+    ); 
   }
 
   Widget _buildChatBubble(String text, String time, bool isUser) {
@@ -194,14 +220,17 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 child: Text(
                   text,
-                  style: TextStyle(
-                      fontSize: TextSize.small, color: AppColors.textHigh),
+                  style: const TextStyle(
+                      fontFamily: 'SUITE',
+                      fontSize: TextSize.small,
+                      color: AppColors.textHigh),
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 parsedTime,
-                style: TextStyle(
+                style: const TextStyle(
+                  fontFamily: 'SUITE',
                   fontSize: TextSize.extraSmall,
                   color: AppColors.textMedium,
                 ),
@@ -250,7 +279,7 @@ class _ChatPageState extends State<ChatPage> {
                         color: Colors.black.withOpacity(0.15), // 그림자 색상
                         offset: const Offset(1, 1), // 그림자 위치
                         blurRadius: 4, // 흐림 효과
-                        spreadRadius: 1, // 확산 정도
+                        spreadRadius: 0, // 확산 정도
                       ),
                     ],
                   ),
@@ -259,20 +288,19 @@ class _ChatPageState extends State<ChatPage> {
                     onChanged: (text) {
                       setState(() {
                         // 텍스트 입력 상태에 따른 버튼 색상 변경
-                        sendButtonColor = text.isEmpty
-                            ? AppColors.grey200!
-                            : AppColors.accent;
+                        sendButtonColor =
+                            text.isEmpty ? AppColors.grey200 : AppColors.accent;
                       });
                     },
-                    decoration: InputDecoration(
-                      hintText: "메시지를 입력하세요...", // 힌트 텍스트
+                    decoration: const InputDecoration(
+                      hintText: "메시지를 입력하세요", // 힌트 텍스트
                       hintStyle: TextStyle(
                         fontSize: TextSize.small, // 글자 크기
                         color: Color(0xffB8B8B8), // 텍스트 색상
                       ),
                       border: InputBorder.none, // 입력칸 경계선 제거
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 10.0,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 12.0, 
                         horizontal: 15.0,
                       ),
                     ),
@@ -286,7 +314,7 @@ class _ChatPageState extends State<ChatPage> {
                     _handleSendMessage();
                     setState(() {
                       // 메시지 전송 후 버튼 색상 초기화
-                      sendButtonColor = AppColors.grey200!;
+                      sendButtonColor = AppColors.grey200;
                     });
                   }
                 },
@@ -329,78 +357,61 @@ class _ChatPageState extends State<ChatPage> {
         });
       });
       _messageController.clear();
-      Future.delayed(Duration(milliseconds: 100), () {
+      Future.delayed(const Duration(milliseconds: 100), () {
         _scrollToBottom(); // 메시지를 보낸 후 스크롤
       });
     }
   }
 
-  PreferredSize BuildChatAppBar(BuildContext context, String appyName) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(70), // AppBar 높이
-      child: Container(
-        height: 70, // AppBar 높이 명시적으로 설정
-        decoration: BoxDecoration(
-          color: AppColors.primary, // AppBar 배경색
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(10), // 하단 둥근 처리
-            bottomRight: Radius.circular(10),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0C0C0D).withOpacity(0.03), // 그림자
-              offset: const Offset(0, 3),
-              blurRadius: 4,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0), // 가로 여백 추가
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // 좌우 정렬
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context); // 뒤로가기
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      size: IconSize.medium,
-                      color: AppColors.icon,
-                    ),
-                  ),
-                  // const SizedBox(width: 8), // 버튼과 이미지 간격
-                  BuildChatImage("assets/images/appy_levi.png"), // 아바타 추가
-                  const SizedBox(width: 19), // 이미지와 텍스트 간격
-                  Text(
-                    appyName,
-                    style: const TextStyle(
-                      fontFamily: 'SUITE',
-                      fontSize: TextSize.large,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textHigh,
-                    ),
-                  ),
-                ],
-              ),
-              IconButton(
-                onPressed: () {
-                  // 검색 버튼
-                },
-                icon: Icon(
-                  Icons.search,
-                  color: AppColors.icon,
-                  size: IconSize.medium,
-                ),
-              ),
-            ],
-          ),
+  AppBar BuildChatAppBar(BuildContext context, String appyName) {
+    return AppBar(
+      backgroundColor: AppColors.primary,
+      toolbarHeight: 70, // AppBar 높이 설정
+      elevation: 0, // AppBar 그림자
+      scrolledUnderElevation: 0, // 스크롤 시 추가 elevation 제거
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(10), // 하단 좌측 둥근 처리
+          bottomRight: Radius.circular(10), // 하단 우측 둥근 처리
         ),
       ),
+      leading: IconButton(
+        onPressed: () {
+          Navigator.pop(context); // 뒤로가기
+        },
+        icon: const Icon(
+          Icons.arrow_back_ios,
+          size: IconSize.medium,
+          color: AppColors.icon,
+        ),
+      ),
+      title: Row(
+        children: [
+          BuildChatImage("assets/images/appy_levi.png", size: 46), // 아바타 이미지 추가
+          const SizedBox(width: 19), // 이미지와 텍스트 간격
+          Text(
+            appyName,
+            style: const TextStyle(
+              fontFamily: 'SUITE',
+              fontSize: TextSize.large,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textHigh,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            // 검색 버튼
+          },
+          icon: const Icon(
+            Icons.search,
+            color: AppColors.icon,
+            size: IconSize.medium,
+          ),
+        ),
+      ],
     );
   }
 

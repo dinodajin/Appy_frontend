@@ -105,7 +105,8 @@ class _GiftPageState extends State<GiftPage> {
           ),
         ],
       ),
-      child: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0), // 이미지에 추가적인 여백 설정
         child: Image.asset(
           imagePath,
           fit: BoxFit.contain,

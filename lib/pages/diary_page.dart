@@ -65,7 +65,7 @@ class _DiaryPageState extends State<DiaryPage> {
           return Text(
             "캐릭터 ${widget.characterId} - 아이템 ${widget.itemLevel}\n이미지가 없습니다.",
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: TextSize.medium,
               color: AppColors.textMedium,
             ),
