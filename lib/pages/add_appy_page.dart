@@ -68,8 +68,11 @@ class _AddAppyPageState extends State<AddAppyPage> {
                     Container(
                       child: _showImage
                           ? Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Image.asset("assets/images/appy_levi.png"),
+                                Image.asset("assets/images/appy_levi.png",
+                                height: 300,
+                                ),
                                 Container(
                                   height: 100,
                                 ),

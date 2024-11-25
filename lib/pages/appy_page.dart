@@ -192,11 +192,8 @@ class _AppyPageState extends State<AppyPage> {
                     ),
                     // 에피
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Container(
-                          height: 30,
-                        ),
                         //말풍선 영역
                         Container(
                           height: 90,
@@ -235,8 +232,8 @@ class _AppyPageState extends State<AppyPage> {
                                   )),
                               // 에피 이미지
                               Image.asset(
-                                "assets/images/appy_levi.png",
-                                height: 200,
+                                "assets/images/appy_levi_side_light.png",
+                                height: 240,
                               ),
                               // 다음 에피로 이동 버튼
                               IconButton(
