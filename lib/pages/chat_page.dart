@@ -114,12 +114,29 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  // 각 메시지의 높이를 저장
+  final Map<int, double> _messageHeights = {};
+  final Map<int, double> _cumulativeOffsets = {};
+
   // 검색 상태 관리
   bool _isSearchMode = false;
   // 검색 키워드 관리 뿌이....
   String _searchQuery = "";
   int _currentHighlightedIndex = 0;
   List<int> _highlightedMessageIndices = [];
+
+  void _measureMessageHeight(int index, double height) {
+    setState(() {
+      _messageHeights[index] = height;
+
+      // 누적 오프셋 계산
+      double offset = 0.0;
+      for (int i = 0; i <= index; i++) {
+        offset += _messageHeights[i] ?? 50.0; // 기본 높이 50
+      }
+      _cumulativeOffsets[index] = offset;
+    });
+  }
 
   void _searchMessages(String query) {
     setState(() {
