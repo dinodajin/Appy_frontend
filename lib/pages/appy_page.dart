@@ -309,6 +309,7 @@ class _AppyPageState extends State<AppyPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               //프로그레스 바
@@ -319,7 +320,11 @@ class _AppyPageState extends State<AppyPage> {
                                 animation: true,
                                 animationDuration: 200,
                                 animateFromLastPercent: true,
-                                lineHeight: 30.0,
+                                lineHeight: 28.0,
+                                trailing: Image.asset(
+                                      "assets/icons/gift_box_question.png",
+                                      height: 40,
+                                    ),
                                 percent: currentProgressNum / maxSteps,
                                 // center: Text('$currentProgressNum',
                                 //     style: TextStyle(
@@ -327,10 +332,6 @@ class _AppyPageState extends State<AppyPage> {
                                 //     )),
                                 barRadius: Radius.circular(15.0),
                                 progressColor: AppColors.accent,
-                              ),
-                              Image.asset(
-                                "assets/icons/gift_box_question.png",
-                                height: 45,
                               ),
                             ],
                           ),

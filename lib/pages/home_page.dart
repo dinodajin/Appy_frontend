@@ -15,6 +15,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _animationFlag = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 100ms 후에 애니메이션 시작
+    Future.delayed(const Duration(milliseconds: 100), () {
+      setState(() {
+        _animationFlag = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,43 +45,49 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+            //등록된 에피 불러와서 이미지로 모두 표시하기
+            //각 이미지에 해당하는 에피 아이디 연결
+            Stack(
               children: [
-                Container(height: 300),
-                //등록된 에피 불러와서 이미지로 모두 표시하기
-                //각 이미지에 해당하는 에피 아이디 연결
-                GestureDetector(
-                  onTap: () {
-                    // 페이지 이동
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AppyPage(appyID: "001")));
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_levi.png",
-                    width: 100,
+                //첫번째 에피
+                AnimatedPositioned(
+                  duration: Duration(milliseconds: 1000),
+                  top: _animationFlag ? 300 : 320,
+                  left: _animationFlag ? 200 : 100,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AppyPage(
+                                    appyID: "001",
+                                  )));
+                    },
+                    child: Image.asset(
+                      "assets/images/appy_levi.png",
+                      width: 100,
+                    ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    // 페이지 이동
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const AppyPage(
-                                  appyID: "002",
-                                )));
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_levi.png",
-                    width: 100,
-                  ),
-                ),
+
+                //두번째 에피
+                // GestureDetector(
+                //   onTap: () {
+                //     // 페이지 이동
+                //     Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //             builder: (context) => const AppyPage(
+                //                   appyID: "002",
+                //                 )));
+                //   },
+                //   child: Image.asset(
+                //     "assets/images/appy_levi.png",
+                //     width: 100,
+                //   ),
+                // ),
               ],
-            )
+            ),
           ],
         ));
   }
