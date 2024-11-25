@@ -1,9 +1,13 @@
+import 'package:appy_app/pages/chat_page.dart';
 import 'package:appy_app/pages/start_page.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(AppyApp());
+  // runApp(const MaterialApp(
+  //   home: ChatPage(),
+  // ));
 }
 
 class AppyApp extends StatelessWidget {

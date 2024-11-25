@@ -13,6 +13,8 @@ class AppColors {
   static const Color textLight = Color(0xffCECCCA);
   static const Color textWhite = Colors.white;
   static const Color icon = Color(0xff83807C);
+  static const Color detailIcon = Color(0xff83807C);
+  static const Color grey200 = Color(0xffE7E6E5);
   static const Color iconShadow = Color(0xffDEDEDE);
 }
 
@@ -28,6 +30,7 @@ class TextSize {
   static const double medium = 20.0;
   static const double small = 16.0;
   static const double tiny = 14.0;
+  static const double extraSmall = 12.0;
 }
 
 class AppPadding {

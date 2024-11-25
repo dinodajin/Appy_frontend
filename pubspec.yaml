@@ -37,6 +37,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   percent_indicator: ^4.2.4
+  intl: ^0.20.0
 
 dev_dependencies:
 
@@ -62,6 +63,8 @@ flutter:
   uses-material-design: true
   assets:
   - assets/icons/
+  - assets/icons/gift/
+  - assets/icons/diary/
   - assets/images/
 
   fonts:
