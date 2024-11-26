@@ -84,19 +84,24 @@ class _LoginPageState extends State<LoginPage> {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
 
+    // TODO: 백엔드 API 연동 필요
+    // - email, password를 서버로 전송하여 인증
+    // - 성공 시 응답 데이터 처리 (예: 토큰 저장)
+    // - 실패 시 에러 메시지 표시
+
     // 예제: 이메일 및 비밀번호 확인 조건
     if (email != "registered@example.com") {
       _showErrorDialog("등록된 이메일이 없습니다");
     } else if (password != "correctPassword") {
       _showErrorDialog("비밀번호가 일치하지 않습니다");
     } else {
-      // 로그인 성공 시 페이지 이동
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SignUpPage(), // Replace with the desired page
-        ),
-      );
+      // 로그인 성공 시 페이지 이동(수정 필요!!!!!!!!!!)
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => const SignUpPage(), // Replace with the desired page
+      //   ),
+      // );
     }
   }
 
