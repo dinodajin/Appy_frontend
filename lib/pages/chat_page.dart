@@ -1,5 +1,4 @@
 import 'package:appy_app/widgets/theme.dart';
-import 'package:appy_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -111,94 +110,18 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     },
   ];
 
+  // 컨트롤러
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
-  // 각 메시지의 높이를 저장
-  final Map<int, double> _messageHeights = {};
-  final Map<int, double> _cumulativeOffsets = {};
 
   // 검색 상태 관리
   bool _isSearchMode = false;
   // 검색 키워드 관리 뿌이....
   String _searchQuery = "";
-  int _currentHighlightedIndex = 0;
   List<int> _highlightedMessageIndices = [];
 
-  void _measureMessageHeight(int index, double height) {
-    setState(() {
-      _messageHeights[index] = height;
-
-      // 누적 오프셋 계산
-      double offset = 0.0;
-      for (int i = 0; i <= index; i++) {
-        offset += _messageHeights[i] ?? 50.0; // 기본 높이 50
-      }
-      _cumulativeOffsets[index] = offset;
-    });
-  }
-
-  void _searchMessages(String query) {
-    setState(() {
-      _searchQuery = query;
-      _highlightedMessageIndices = [];
-      _currentHighlightedIndex = 0;
-
-      // 검색 키워드를 포함한 메시지 인덱스 수집
-      for (int i = 0; i < messages.length; i++) {
-        if (messages[i]["text"]!.toLowerCase().contains(query.toLowerCase())) {
-          _highlightedMessageIndices.add(i);
-        }
-      }
-    });
-
-    // 검색된 메시지가 있다면 첫 번째로 이동
-    if (_highlightedMessageIndices.isNotEmpty) {
-      _scrollToMessage(_highlightedMessageIndices[_currentHighlightedIndex]);
-    }
-  }
-
-  void _scrollToMessage(int index) {
-    if (_scrollController.hasClients) {
-      // 해당 메시지로 스크롤 이동
-      _scrollController.animateTo(
-        index * 70.0, // 메시지 하나의 예상 높이 (필요에 따라 조정)
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _moveToNextHighlight() {
-    if (_highlightedMessageIndices.isNotEmpty) {
-      setState(() {
-        _currentHighlightedIndex =
-            (_currentHighlightedIndex + 1) % _highlightedMessageIndices.length;
-      });
-      _scrollToMessage(_highlightedMessageIndices[_currentHighlightedIndex]);
-    }
-  }
-
-  void _moveToPreviousHighlight() {
-    if (_highlightedMessageIndices.isNotEmpty) {
-      setState(() {
-        _currentHighlightedIndex =
-            (_currentHighlightedIndex - 1 + _highlightedMessageIndices.length) %
-                _highlightedMessageIndices.length;
-      });
-      _scrollToMessage(_highlightedMessageIndices[_currentHighlightedIndex]);
-    }
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    }
-  }
+  // 모듈 연결 상태 변수
+  bool _isModuleConnected = false; // 모듈 연결 상태 변수
 
   @override
   void initState() {
@@ -212,6 +135,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -301,14 +234,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           style: TextStyle(color: AppColors.textHigh),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.arrow_upward),
-            onPressed: _moveToPreviousHighlight,
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_downward),
-            onPressed: _moveToNextHighlight,
-          ),
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -410,8 +335,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   Widget _buildChatBubble(String text, String time, bool isUser, int index) {
     final parsedTime = DateFormat('HH:mm').format(DateTime.parse(time));
-    final isHighlighted = _highlightedMessageIndices.contains(index) &&
-        _highlightedMessageIndices[_currentHighlightedIndex] == index;
 
     // 검색된 단어 하이라이트
     List<TextSpan> _highlightText(String text, String query) {
@@ -538,33 +461,47 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                       ),
                     ],
                   ),
-                  child: TextField(
-                    controller: _messageController,
-                    onChanged: (text) {
-                      setState(() {
-                        sendButtonColor =
-                            text.isEmpty ? AppColors.grey200 : AppColors.accent;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "메시지를 입력하세요",
-                      hintStyle: TextStyle(
-                        fontSize: TextSize.small,
-                        color: Color(0xffB8B8B8),
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 15.0,
-                      ),
-                    ),
-                  ),
+                  child: _isModuleConnected
+                      ? TextField(
+                          controller: _messageController,
+                          onChanged: (text) {
+                            setState(() {
+                              sendButtonColor = text.isEmpty
+                                  ? AppColors.grey200
+                                  : AppColors.accent;
+                            });
+                          },
+                          decoration: const InputDecoration(
+                            hintText: "메시지를 입력하세요",
+                            hintStyle: TextStyle(
+                              fontSize: TextSize.small,
+                              color: Color(0xffB8B8B8),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 15.0,
+                              horizontal: 15.0,
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            "모듈에 연결 되어야 대화가 가능합니다.",
+                            style: const TextStyle(
+                              fontFamily: "SUITE",
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: 10),
               GestureDetector(
                 onTap: () {
-                  if (_messageController.text.isNotEmpty) {
+                  if (_isModuleConnected &&
+                      _messageController.text.isNotEmpty) {
                     _handleSendMessage();
                     setState(() {
                       sendButtonColor = AppColors.grey200;
@@ -575,7 +512,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: sendButtonColor,
+                    color: _isModuleConnected
+                        ? sendButtonColor
+                        : AppColors.grey200, // 모듈 연결되지 않으면 버튼 비활성화 색상
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
