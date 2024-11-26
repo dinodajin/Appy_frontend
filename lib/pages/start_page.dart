@@ -26,32 +26,54 @@ class StartPage extends StatelessWidget {
                 child: Padding(
                     padding: AppPadding.body,
                     child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Appy",
-                            style: TextStyle(
-                              fontSize: 60,
-                              fontWeight: FontWeight.w900,
+                          Container(
+                            height: 20,
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left:15),
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Appy",
+                                  style: TextStyle(
+                                    fontSize: 60,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                Text(
+                                  "에피소드를 시작해보세요",
+                                  style: TextStyle(
+                                    fontSize: TextSize.large,
+                                    fontWeight: FontWeight.w700,
+                                  )
+                                )
+                            
+                              ],
                             ),
                           ),
                           Container(
-                            height: 300,
+                            height: 200,
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              // 페이지 이동
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const LoginPage()));
-                            },
-                            child: _buildStartButton(
-                                "로그인", AppColors.background, AppColors.textHigh),
-                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  // 페이지 이동
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const LoginPage()));
+                                },
+                                child: _buildStartButton(
+                                    "로그인", AppColors.primary, AppColors.textHigh),
+                              ),
                           Container(
-                            height: 10,
+                            height: 20,
                           ),
                           GestureDetector(
                             onTap: () {
@@ -63,7 +85,11 @@ class StartPage extends StatelessWidget {
                             },
                             child: _buildStartButton(
                                 "회원가입", AppColors.background, AppColors.textHigh),
+                          ),                            
+                            
+                            ],
                           ),
+
                         ]))),
           ],
         ));
@@ -85,7 +111,7 @@ Container _buildStartButton(
       style: TextStyle(
         color: textColor,
         fontSize: TextSize.medium,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       ),
     ),
   );
