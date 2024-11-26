@@ -13,49 +13,60 @@ class StartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColors.accent,
-        body: SafeArea(
-            child: Padding(
-                padding: AppPadding.body,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Appy",
-                        style: TextStyle(
-                          fontSize: 60,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      Container(
-                        height: 300,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // 페이지 이동
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
-                        },
-                        child: _buildStartButton(
-                            "로그인", AppColors.background, AppColors.textHigh),
-                      ),
-                      Container(
-                        height: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // 페이지 이동
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SignUpPage()));
-                        },
-                        child: _buildStartButton(
-                            "회원가입", AppColors.background, AppColors.textHigh),
-                      ),
-                    ]))));
+        body: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/start_background.png"),
+                  fit: BoxFit.contain)
+              ),
+            ),
+            SafeArea(
+                child: Padding(
+                    padding: AppPadding.body,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Appy",
+                            style: TextStyle(
+                              fontSize: 60,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Container(
+                            height: 300,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // 페이지 이동
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const LoginPage()));
+                            },
+                            child: _buildStartButton(
+                                "로그인", AppColors.background, AppColors.textHigh),
+                          ),
+                          Container(
+                            height: 10,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // 페이지 이동
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const SignUpPage()));
+                            },
+                            child: _buildStartButton(
+                                "회원가입", AppColors.background, AppColors.textHigh),
+                          ),
+                        ]))),
+          ],
+        ));
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:appy_app/pages/chat_page.dart';
+import 'package:appy_app/pages/home_page.dart';
 import 'package:appy_app/pages/start_page.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
