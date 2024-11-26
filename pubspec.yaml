@@ -38,6 +38,8 @@ dependencies:
   percent_indicator: ^4.2.4
   intl: ^0.20.0
   mobile_scanner: ^6.0.2
+  http: ^1.2.2
+  web_socket_channel: ^2.1.0
 
 dev_dependencies:
 
