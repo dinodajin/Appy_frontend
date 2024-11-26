@@ -20,7 +20,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
     super.initState();
 
     // 1초 후에 이미지 표시 여부 상태 변경 (QR 찍혔다고 가정)
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _showImage = true;
       });
@@ -68,8 +68,11 @@ class _AddAppyPageState extends State<AddAppyPage> {
                     Container(
                       child: _showImage
                           ? Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Image.asset("assets/images/appy_levi.png"),
+                                Image.asset("assets/images/appy_levi.png",
+                                height: 300,
+                                ),
                                 Container(
                                   height: 100,
                                 ),
