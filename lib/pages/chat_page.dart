@@ -213,7 +213,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         ),
         title: Row(
           children: [
-            BuildChatImage("assets/images/appy_levi.png", size: 46),
+            BuildChatImage("assets/images/appy_levi_crop.png", size: 46),
             const SizedBox(width: 19),
             Text(
               "레비",
@@ -295,7 +295,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           if (!isUser) ...[
             Column(
               children: [
-                BuildChatImage("assets/images/appy_levi.png"),
+                BuildChatImage("assets/images/appy_levi_crop.png"),
                 const SizedBox(height: 4),
               ],
             ),
@@ -445,6 +445,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
           Expanded(
