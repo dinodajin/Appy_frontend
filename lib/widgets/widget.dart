@@ -152,6 +152,9 @@ AppBar BuildBigAppBar(BuildContext context, String title, String imagePath) {
   );
 }
 
+
+
+
 void showCustomErrorDialog({
   required BuildContext context,
   required String message,
@@ -209,9 +212,10 @@ void showCustomErrorDialog({
                   Navigator.of(context).pop(); // 기본 동작: 팝업 닫기
                 },
             style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFF66CFA3),
+              backgroundColor: AppColors.accent,
               foregroundColor: Colors.white,
               textStyle: const TextStyle(
+                fontFamily: "SUITE",
                 fontSize: 15,
               ),
               shape: RoundedRectangleBorder(
