@@ -133,7 +133,7 @@ AppBar BuildBigAppBar(BuildContext context, String title, String imagePath) {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          padding: EdgeInsets.only(bottom: 20),
+          padding: const EdgeInsets.only(bottom: 20),
           child: Image.asset(
             imagePath,
             width: 50,
@@ -149,6 +149,82 @@ AppBar BuildBigAppBar(BuildContext context, String title, String imagePath) {
         ),
       ],
     ),
+  );
+}
+
+void showCustomErrorDialog({
+  required BuildContext context,
+  required String message,
+  required String buttonText,
+  VoidCallback? onConfirm, // 확인 버튼 이벤트
+  String? cancelButtonText, // 취소 버튼 텍스트
+  VoidCallback? onCancel, // 취소 버튼 이벤트
+}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        backgroundColor: AppColors.background,
+        contentPadding: const EdgeInsets.all(10),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 35),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 15),
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+        actions: [
+          // 취소 버튼 추가
+          if (cancelButtonText != null)
+            TextButton(
+              onPressed: onCancel ??
+                  () {
+                    Navigator.of(context).pop(); // 기본 동작: 팝업 닫기
+                  },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.grey[300],
+                foregroundColor: Colors.black,
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                minimumSize: const Size(100, 30),
+              ),
+              child: Text(cancelButtonText),
+            ),
+          // 확인 버튼
+          TextButton(
+            onPressed: onConfirm ??
+                () {
+                  Navigator.of(context).pop(); // 기본 동작: 팝업 닫기
+                },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFF66CFA3),
+              foregroundColor: Colors.white,
+              textStyle: const TextStyle(
+                fontSize: 15,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              minimumSize: const Size(100, 30),
+            ),
+            child: Text(buttonText),
+          ),
+        ],
+        actionsAlignment: MainAxisAlignment.center,
+      );
+    },
   );
 }
 
