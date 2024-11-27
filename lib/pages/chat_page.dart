@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -21,8 +22,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   bool _isSearchMode = false;
   String _searchQuery = "";
   List<int> _highlightedMessageIndices = [];
-    // 수정 필요: 모듈 연결 상태 변수
-    bool _isModuleConnected = true; 
+  bool _isModuleConnected = true; // 모듈 연결 상태 변수
 
   @override
   void initState() {
@@ -89,7 +89,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           messages.sort((a, b) => DateTime.parse(a['time']!)
               .compareTo(DateTime.parse(b['time']!)));
         });
-        // 데이터를 로드한 후 렌더링 완료 시점에 스크롤 이동
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToBottom();
         });
@@ -105,7 +104,23 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     if (content.isEmpty) return;
 
     try {
-      final message = {'content': content, 'userId': 'user3@example.com'};
+      // 메시지 전송 전 UI에 즉시 추가
+      setState(() {
+        messages.add({
+          "text": content,
+          "time": DateTime.now().toIso8601String(),
+          "type": "USER",
+        });
+        _messageController.clear(); // 입력창 초기화
+        FocusManager.instance.primaryFocus?.unfocus(); // 키보드 닫기
+      });
+      _scrollToBottom();
+
+      final message = {
+        'content': content,
+        'userId': 'user3@example.com',
+        "sender": 'USER',
+      };
 
       final response = await http.post(
         Uri.parse('$apiUrl/send'),
@@ -113,19 +128,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         body: json.encode(message),
       );
 
-      if (response.statusCode == 200) {
-        setState(() {
-          messages.add({
-            "text": content,
-            "time": DateTime.now().toIso8601String(),
-            "type": "USER",
-          });
-          messages.sort((a, b) => DateTime.parse(a['time']!)
-              .compareTo(DateTime.parse(b['time']!)));
-        });
-        _scrollToBottom();
-      } else {
-        throw Exception('Failed to send message');
+      if (response.statusCode != 200) {
+        print('Failed to send message: ${response.statusCode}');
       }
     } catch (error) {
       print('Error sending message: $error');
@@ -264,27 +268,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   Widget _buildChatBubble(String text, String time, bool isUser) {
     final parsedTime = DateFormat('HH:mm').format(DateTime.parse(time));
-     // 검색된 단어 하이라이트
-    List<TextSpan> _highlightText(String text, String query) {
-      if (query.isEmpty) return [TextSpan(text: text)];
-
-      final matches = text.split(RegExp(query, caseSensitive: false));
-      final spans = <TextSpan>[];
-
-      for (var i = 0; i < matches.length; i++) {
-        spans.add(TextSpan(text: matches[i]));
-        if (i < matches.length - 1) {
-          spans.add(TextSpan(
-            text: query,
-            style: TextStyle(
-              backgroundColor: Colors.black,
-              color: Colors.white,
-            ),
-          ));
-        }
-      }
-      return spans;
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
@@ -322,13 +305,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         isUser ? Radius.zero : const Radius.circular(10),
                   ),
                 ),
-                child: RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                        fontFamily: 'SUITE',
-                        fontSize: TextSize.small,
-                        color: AppColors.textHigh),
-                    children: _highlightText(text, _searchQuery),
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontFamily: 'SUITE',
+                    fontSize: TextSize.small,
+                    color: AppColors.textHigh,
                   ),
                 ),
               ),
@@ -348,98 +330,89 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   }
 
   Widget _buildChatInput() {
-  return Container(
-    height: 70,
-    decoration: BoxDecoration(
-      color: AppColors.background,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
+    return Container(
+      height: 70,
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
       ),
-    ),
-    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-    child: Row(
-      children: [
-        Expanded(
-          child: Container(
-            width: 353,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.iconBackground,
-              borderRadius: BorderRadius.circular(40),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  offset: const Offset(1, 1),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: TextField(
-              controller: _messageController,
-              onChanged: (text) {
-                setState(() {
-                  // 버튼 색상 변경
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: "메시지를 입력하세요",
-                hintStyle: TextStyle(
-                  fontSize: TextSize.small,
-                  color: Color(0xffB8B8B8),
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 15.0,
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              width: 353,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.iconBackground,
+                borderRadius: BorderRadius.circular(40),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    offset: const Offset(1, 1),
+                    blurRadius: 4,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _messageController,
+                onChanged: (text) {
+                  setState(() {}); // 버튼 색상 변경
+                },
+                decoration: const InputDecoration(
+                  hintText: "메시지를 입력하세요",
+                  hintStyle: TextStyle(
+                    fontSize: TextSize.small,
+                    color: Color(0xffB8B8B8),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 15.0,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        GestureDetector(
-          onTap: () {
-            if (_messageController.text.isNotEmpty) {
-              // 메시지 전송
-              _sendMessage(_messageController.text);
-              // 입력창 초기화
-              setState(() {
-                _messageController.clear();
-                // 버튼 색상 초기화
-              });
-            }
-          },
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: _messageController.text.isNotEmpty
-                  ? AppColors.accent
-                  : AppColors.grey200, // 입력 상태에 따른 버튼 색상
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.arrow_upward,
-              color: Colors.white,
-              size: 30,
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () {
+              if (_messageController.text.isNotEmpty) {
+                _sendMessage(_messageController.text); // 메시지 전송
+              }
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: _messageController.text.isNotEmpty
+                    ? AppColors.accent
+                    : AppColors.grey200, // 입력 상태에 따른 버튼 색상
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    offset: const Offset(0, 2),
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.arrow_upward,
+                color: Colors.white,
+                size: 30,
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
