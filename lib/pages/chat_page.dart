@@ -418,7 +418,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      backgroundColor: AppColors.background,
       body: Column(
         children: [
           Expanded(
