@@ -92,7 +92,7 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: BuildAppBar(context),
       backgroundColor: AppColors.background,
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppPadding.body,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,8 +103,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   const Text(
                     "회원가입",
                     style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w700,
+                      fontSize: TextSize.huge,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   Container(
@@ -317,15 +317,17 @@ class _SignUpPageState extends State<SignUpPage> {
                     Text(
                       "계정이 있으신가요? ",
                       style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
+                        color: AppColors.textMedium,
+                        fontSize: TextSize.small,
+                        fontWeight: FontWeight.w500
                       ),
                     ),
                     Text(
                       "로그인",
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
+                        color: AppColors.textHigh,
+                        fontSize: TextSize.small,
+                        fontWeight: FontWeight.w700
                       ),
                     ),
                   ],
