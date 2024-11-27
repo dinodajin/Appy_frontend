@@ -23,7 +23,7 @@ class ModuleMapPage extends StatelessWidget {
                   child: SizedBox.expand(
                     child: Image.asset(
                       "assets/images/module_map_background.png",
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ),
@@ -32,12 +32,13 @@ class ModuleMapPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Container(height: 330),
+                Container(height: 390),
+                // 모듈에 도킹된 에피만 나타나게 하기
                 GestureDetector(
                   onTap: () {},
                   child: Image.asset(
                     "assets/images/appy_levi.png",
-                    width: 100,
+                    width: ImageSize.appyTiny,
                   ),
                 ),
               ],
@@ -54,8 +55,7 @@ AppBar _buildModuleMapAppBar(BuildContext context) {
     centerTitle: true,
     title: const Text(
       "모듈맵",
-      style: TextStyle(
-          fontSize: TextSize.medium, fontWeight: FontWeight.w700),
+      style: TextStyle(fontSize: TextSize.medium, fontWeight: FontWeight.w700),
     ),
     leading: Row(
       children: [

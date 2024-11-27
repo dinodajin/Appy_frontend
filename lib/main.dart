@@ -3,6 +3,7 @@ import 'package:appy_app/pages/home_page.dart';
 import 'package:appy_app/pages/start_page.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:appy_app/pages/add_module_page.dart';
 
 void main() {
   runApp(const AppyApp());
@@ -25,7 +26,7 @@ class AppyApp extends StatelessWidget {
           textTheme: const TextTheme(
             bodyLarge: TextStyle(color: AppColors.textHigh),
           )),
-      home: const StartPage(),
+      home: const HomePage(),
     );
   }
 }

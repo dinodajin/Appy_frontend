@@ -17,10 +17,9 @@ class StartPage extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/start_background.png"),
-                  fit: BoxFit.contain)
-              ),
+                  image: DecorationImage(
+                      image: AssetImage("assets/images/start_background.png"),
+                      fit: BoxFit.fill)),
             ),
             SafeArea(
                 child: Padding(
@@ -33,7 +32,7 @@ class StartPage extends StatelessWidget {
                             height: 20,
                           ),
                           Container(
-                            padding: EdgeInsets.only(left:15),
+                            padding: EdgeInsets.only(left: 15),
                             alignment: Alignment.centerLeft,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,14 +44,11 @@ class StartPage extends StatelessWidget {
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
-                                Text(
-                                  "에피소드를 시작해보세요",
-                                  style: TextStyle(
-                                    fontSize: TextSize.large,
-                                    fontWeight: FontWeight.w700,
-                                  )
-                                )
-                            
+                                Text("에피소드를 시작해보세요",
+                                    style: TextStyle(
+                                      fontSize: TextSize.large,
+                                      fontWeight: FontWeight.w700,
+                                    ))
                               ],
                             ),
                           ),
@@ -67,29 +63,29 @@ class StartPage extends StatelessWidget {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const LoginPage()));
+                                          builder: (context) =>
+                                              const LoginPage()));
                                 },
-                                child: _buildStartButton(
-                                    "로그인", AppColors.primary, AppColors.textHigh),
+                                child: _buildStartButton("로그인",
+                                    AppColors.primary, AppColors.textHigh),
                               ),
-                          Container(
-                            height: 20,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              // 페이지 이동
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const SignUpPage()));
-                            },
-                            child: _buildStartButton(
-                                "회원가입", AppColors.background, AppColors.textHigh),
-                          ),                            
-                            
+                              Container(
+                                height: 20,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  // 페이지 이동
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SignUpPage()));
+                                },
+                                child: _buildStartButton("회원가입",
+                                    AppColors.background, AppColors.textHigh),
+                              ),
                             ],
                           ),
-
                         ]))),
           ],
         ));

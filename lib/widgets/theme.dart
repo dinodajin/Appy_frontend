@@ -36,3 +36,10 @@ class TextSize {
 class AppPadding {
   static const body = EdgeInsets.all(15);
 }
+
+
+class ImageSize {
+  static const double appyTiny = 50.0;
+  static const double appySmall = 100.0;
+  static const double appyLarge = 230.0;
+}
