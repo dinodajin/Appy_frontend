@@ -26,7 +26,7 @@ class AppyApp extends StatelessWidget {
           textTheme: const TextTheme(
             bodyLarge: TextStyle(color: AppColors.textHigh),
           )),
-      home: const StartPage(),
+      home: const AddModulePage(),
     );
   }
 }

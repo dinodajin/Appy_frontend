@@ -216,7 +216,22 @@ class _AppyPageState extends State<AppyPage> {
                             children: [
                               // 이전 에피로 이동 버튼
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    // 이전 인덱스가 있는 경우
+                                    int preIndex = appyIDs.indexOf(widget.appyID) - 1;
+                                    if (preIndex >= 0) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AppyPage(
+                                            appyID: appyIDs[preIndex], appyType: appyTypes[preIndex],
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      // 동작 안하기
+                                    }
+                                  },
                                   icon: FaIcon(
                                     FontAwesomeIcons.caretLeft,
                                     size: IconSize.large,
@@ -230,7 +245,23 @@ class _AppyPageState extends State<AppyPage> {
                               ),
                               // 다음 에피로 이동 버튼
                               IconButton(
-                                  onPressed: () {},
+                                onPressed: () {
+                                  // 다음 인덱스가 있는 경우
+                                  int nextIndex = appyIDs.indexOf(widget.appyID) + 1;
+                                  if (nextIndex < appyIDs.length) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AppyPage(
+                                          appyID: appyIDs[nextIndex], appyType: appyTypes[nextIndex],
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    // 동작 안하기
+                                  }
+
+                                },
                                   icon: FaIcon(
                                     FontAwesomeIcons.caretRight,
                                     size: IconSize.large,

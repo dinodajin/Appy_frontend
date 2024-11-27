@@ -1,10 +1,5 @@
-  
-  
-final Map<String, int> idToType = {
-  "ID001": 0,
-  "ID002": 1,
-  "ID003": 2,
-};
+List<String> appyIDs = ["ID001", "ID002", "ID003"];
+List<int> appyTypes = [0, 1, 2];
 
 // 캐릭터 이름 (영문)
 final List<String> appyNames = ["levi", "bobby", "nubi"];
