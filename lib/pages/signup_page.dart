@@ -3,6 +3,9 @@ import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/pages/login_page.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -52,35 +55,74 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  void _handleSignUp() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final name = _nameController.text.trim();
-    final age = _ageController.text.trim();
-    final gender = _gender;
+  void _handleSignUp() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
+  final name = _nameController.text.trim();
+  final age = _ageController.text.trim();
+  final gender = _gender;
 
-    // 이메일 중복 확인을 했는지 검사
-    if (!_isEmailChecked) {
+  // 이메일 중복 확인 여부 검사
+  if (!_isEmailChecked) {
+    showCustomErrorDialog(
+      context: context,
+      message: "이메일이 중복 확인을 완료해주세요.",
+      buttonText: "확인",
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
+    );
+    return;
+  }
+
+  // API 호출
+  final url = Uri.parse("http://192.168.0.54:8081/api/users"); // 서버 주소와 엔드포인트
+  final headers = {"Content-Type": "application/json"};
+  final body = jsonEncode({
+    "USER_ID": email,
+    "USER_PW": password,
+    "NAME": name,
+    "AGE": int.tryParse(age),
+    "GENDER": gender,
+    "CREATED_AT": DateTime.now().toIso8601String(),
+  });
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      // 회원가입 성공 처리
+      print("회원가입 성공: ${response.body}");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      // 에러 처리
+      final responseData = jsonDecode(response.body);
       showCustomErrorDialog(
         context: context,
-        message: "이메일이 중복 확인을 완료해주세요.",
+        message: responseData['message'] ?? '회원가입 중 오류가 발생했습니다.',
         buttonText: "확인",
         onConfirm: () {
           Navigator.of(context).pop();
         },
       );
-      return;
     }
-
-    // 회원가입이 성공했다고 가정
-    print("회원가입 정보: $email, $password, $name, $age, $gender");
-
-    // 로그인 페이지로 이동
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+  } catch (e) {
+    // 네트워크 에러 처리
+    print("네트워크 에러: $e");
+    showCustomErrorDialog(
+      context: context,
+      message: "서버와 연결할 수 없습니다. 인터넷 연결을 확인해주세요.",
+      buttonText: "확인",
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
     );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +242,6 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _nameController,
-                obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromRGBO(127, 212, 173, 0.16),
