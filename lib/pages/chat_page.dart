@@ -19,39 +19,43 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   final String apiUrl = 'http://192.168.0.54:8081/api/chat';
 
+  Timer? _pollingTimer; // 폴링 타이머
+
   bool _isSearchMode = false;
   String _searchQuery = "";
   List<int> _highlightedMessageIndices = [];
   bool _isModuleConnected = true; // 모듈 연결 상태 변수
 
   @override
-  void initState() {
-    super.initState();
-    initializeDateFormatting('ko', null);
-    WidgetsBinding.instance.addObserver(this);
+void initState() {
+  super.initState();
+  initializeDateFormatting('ko', null);
+  WidgetsBinding.instance.addObserver(this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchMessages().then((_) {
-        _scrollToBottom(); // 데이터 로드 이후 스크롤 이동
-      });
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _fetchMessages().then((_) {
+      _scrollToBottom(); // 데이터 로드 이후 스크롤 이동
+    });
+  });
+
+  // 5초 간격으로 서버에서 메시지 확인
+  _startPolling();
+}
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _fetchMessages(); // 서버에서 새로운 메시지 확인
     });
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    }
-  }
+  
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _messageController.dispose();
     _scrollController.dispose();
+     _pollingTimer?.cancel(); // 폴링 종료
     super.dispose();
   }
 
@@ -65,46 +69,56 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       });
     }
   }
-
-  Future<void> _fetchMessages() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$apiUrl/messages'),
-        headers: {'Accept': 'application/json; charset=UTF-8'},
+  
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
       );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          messages.clear();
-          messages.addAll(data.map((item) {
-            final Map<String, dynamic> message = item as Map<String, dynamic>;
-            return {
-              'text': message['content'] as String? ?? '',
-              'time': message['createdAt'] as String? ??
-                  DateTime.now().toIso8601String(),
-              'type': message['sender'] == 'USER' ? 'USER' : 'AI',
-            };
-          }).toList());
-          messages.sort((a, b) => DateTime.parse(a['time']!)
-              .compareTo(DateTime.parse(b['time']!)));
-        });
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollToBottom();
-        });
-      } else {
-        throw Exception('Failed to load messages. Status code: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching messages: $error');
     }
   }
 
+  Future<void> _fetchMessages() async {
+  try {
+    final response = await http.get(
+      Uri.parse('$apiUrl/messages'),
+      headers: {'Accept': 'application/json; charset=UTF-8'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      setState(() {
+        messages.clear();
+        messages.addAll(data.map((item) {
+          final Map<String, dynamic> message = item as Map<String, dynamic>;
+          return {
+            'text': message['content'] as String? ?? '',
+            'time': message['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+            'type': message['sender'] == 'USER' ? 'USER' : 'AI',
+          };
+        }).toList());
+        messages.sort((a, b) => DateTime.parse(a['time']!)
+            .compareTo(DateTime.parse(b['time']!)));
+      });
+
+      // 메시지 로드 후 스크롤을 최하단으로 이동
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
+    } else {
+      throw Exception('Failed to load messages. Status code: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching messages: $error');
+  }
+}
+
   Future<void> _sendMessage(String content) async {
     if (content.isEmpty) return;
-
     try {
-      // 메시지 전송 전 UI에 즉시 추가
+        // 메시지 전송 전 UI에 즉시 추가
       setState(() {
         messages.add({
           "text": content,
@@ -128,9 +142,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         body: json.encode(message),
       );
 
-      if (response.statusCode != 200) {
-        print('Failed to send message: ${response.statusCode}');
-      }
     } catch (error) {
       print('Error sending message: $error');
     }
