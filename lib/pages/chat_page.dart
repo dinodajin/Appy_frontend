@@ -279,6 +279,29 @@ void initState() {
 
   Widget _buildChatBubble(String text, String time, bool isUser) {
     final parsedTime = DateFormat('HH:mm').format(DateTime.parse(time));
+    
+    // 검색된 단어 하이라이트
+    List<TextSpan> _highlightText(String text, String query) {
+      if (query.isEmpty) return [TextSpan(text: text)];
+
+      final matches = text.split(RegExp(query, caseSensitive: false));
+      final spans = <TextSpan>[];
+
+      for (var i = 0; i < matches.length; i++) {
+        spans.add(TextSpan(text: matches[i]));
+        if (i < matches.length - 1) {
+          spans.add(TextSpan(
+            text: query,
+            style: TextStyle(
+              backgroundColor: Colors.black,
+              color: Colors.white,
+            ),
+          ));
+        }
+      }
+      return spans;
+    }
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
@@ -316,12 +339,13 @@ void initState() {
                         isUser ? Radius.zero : const Radius.circular(10),
                   ),
                 ),
-                child: Text(
-                  text,
-                  style: const TextStyle(
-                    fontFamily: 'SUITE',
-                    fontSize: TextSize.small,
-                    color: AppColors.textHigh,
+                 child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                        fontFamily: 'SUITE',
+                        fontSize: TextSize.small,
+                        color: AppColors.textHigh),
+                    children: _highlightText(text, _searchQuery),
                   ),
                 ),
               ),
