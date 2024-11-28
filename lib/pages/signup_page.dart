@@ -200,7 +200,6 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _nameController,
-                obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromRGBO(127, 212, 173, 0.16),
