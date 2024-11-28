@@ -84,38 +84,6 @@ class _AppyPageState extends State<AppyPage> {
     });
   }
 
-  // void _showCompletionDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text(
-  //           "축하합니다!",
-  //           textAlign: TextAlign.center,
-  //           style: TextStyle(fontWeight: FontWeight.w600),
-  //         ),
-  //         content: Text(
-  //           "$appyName의 선물이 도착했습니다.\n선물함을 확인해주세요.",
-  //           textAlign: TextAlign.center,
-  //           style: const TextStyle(
-  //               fontSize: TextSize.small, fontWeight: FontWeight.w600),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // 팝업 닫기
-  //               setState(() {
-  //                 _isNewGift = true;
-  //               });
-  //             },
-  //             child: const Text("확인"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

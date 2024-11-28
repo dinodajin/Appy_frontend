@@ -21,7 +21,7 @@ class SettingPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-               GestureDetector(
+              GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -30,7 +30,7 @@ class SettingPage extends StatelessWidget {
                           const AddAppyPage(), // AddAppyPage로 이동
                     ),
                   );
-                 },
+                },
                 child: const Row(
                   children: [
                     Icon(
@@ -56,13 +56,10 @@ class SettingPage extends StatelessWidget {
                   ],
                 ),
               ),
-
-
               const SizedBox(height: 20),
               _buildDivider(),
               const SizedBox(height: 20),
-
-               GestureDetector(
+              GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -71,7 +68,7 @@ class SettingPage extends StatelessWidget {
                           const AddModulePage(), // AddModulePage로 이동
                     ),
                   );
-                 },
+                },
                 child: const Row(
                   children: [
                     Icon(
@@ -109,7 +106,13 @@ class SettingPage extends StatelessWidget {
                 onConfirm: () {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("로그아웃 완료.", textAlign: TextAlign.center,)),
+                    const SnackBar(
+                      backgroundColor: AppColors.primary,
+                      content: Text(
+                      "로그아웃 완료",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.textHigh, fontSize: TextSize.medium),
+                    )),
                   );
                 },
               ),
@@ -125,7 +128,13 @@ class SettingPage extends StatelessWidget {
                 onConfirm: () {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("탈퇴 완료.", textAlign: TextAlign.center,)),
+                    const SnackBar(
+                      backgroundColor: AppColors.primary,
+                      content: Text(
+                      "탈퇴 완료",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.textHigh, fontSize: TextSize.medium),
+                    )),
                   );
                 },
               ),
