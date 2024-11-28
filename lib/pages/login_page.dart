@@ -38,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-
   void _handleLogin() {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
@@ -51,28 +50,29 @@ class _LoginPageState extends State<LoginPage> {
     // 예제: 이메일 및 비밀번호 확인 조건
     if (email != "registered@example.com") {
       showCustomErrorDialog(
-          context: context,
-          message: "등록된 이메일이 없습니다.",
-          buttonText: "확인",
-          onConfirm: () {
-            Navigator.of(context).pop();
-          },
-        );
+        context: context,
+        message: "등록된 이메일이 없습니다.",
+        buttonText: "확인",
+        onConfirm: () {
+          Navigator.of(context).pop();
+        },
+      );
     } else if (password != "correctPassword") {
       showCustomErrorDialog(
-          context: context,
-          message: "비밀번호가 일치하지 않습니다.",
-          buttonText: "확인",
-          onConfirm: () {
-            Navigator.of(context).pop();
-          },
-        );
+        context: context,
+        message: "비밀번호가 일치하지 않습니다.",
+        buttonText: "확인",
+        onConfirm: () {
+          Navigator.of(context).pop();
+        },
+      );
     } else {
       //로그인 성공 시 페이지 이동(수정 필요!!!!!!!!!!)
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const HomePage(), // Replace with the desired page
+          builder: (context) =>
+              const HomePage(), // Replace with the desired page
         ),
       );
     }
@@ -80,7 +80,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     // 화면 높이를 기준으로 키보드 상태를 반영
     final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
@@ -118,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color.fromRGBO(127, 212, 173, 0.16),
+                    fillColor: AppColors.accent.withOpacity(0.16),
                     hintText: '이메일을 입력하세요',
                     hintStyle: const TextStyle(color: Colors.black),
                     contentPadding: const EdgeInsets.symmetric(
@@ -128,7 +127,8 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.accent),
+                      borderSide:
+                          const BorderSide(color: AppColors.accent, width: 2),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color.fromRGBO(127, 212, 173, 0.16),
+                    fillColor: AppColors.accent.withOpacity(0.16),
                     hintText: '비밀번호를 입력하세요',
                     hintStyle: const TextStyle(color: Colors.black),
                     contentPadding: const EdgeInsets.symmetric(
@@ -150,7 +150,8 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.accent),
+                      borderSide:
+                          const BorderSide(color: AppColors.accent, width: 2),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
@@ -200,18 +201,16 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         "계정이 없으신가요? ",
                         style: TextStyle(
-                          color: AppColors.textMedium,
-                          fontSize: TextSize.small,
-                          fontWeight: FontWeight.w500
-                        ),
+                            color: AppColors.textMedium,
+                            fontSize: TextSize.small,
+                            fontWeight: FontWeight.w500),
                       ),
                       Text(
                         "회원가입",
                         style: TextStyle(
-                          color: AppColors.textHigh,
-                          fontSize: TextSize.small,
-                          fontWeight: FontWeight.w700
-                        ),
+                            color: AppColors.textHigh,
+                            fontSize: TextSize.small,
+                            fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),

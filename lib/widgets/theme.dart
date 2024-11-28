@@ -16,6 +16,7 @@ class AppColors {
   static const Color detailIcon = Color(0xff83807C);
   static const Color grey200 = Color(0xffE7E6E5);
   static const Color iconShadow = Color(0xffDEDEDE);
+  static const Color caution = Color(0xffFFA600);
 }
 
 class IconSize {
