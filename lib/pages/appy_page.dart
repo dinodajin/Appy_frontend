@@ -22,7 +22,7 @@ class AppyPage extends StatefulWidget {
 
   @override
   State<AppyPage> createState() => _AppyPageState();
-} 
+}
 
 class _AppyPageState extends State<AppyPage> {
   late String randomText;
@@ -74,6 +74,9 @@ class _AppyPageState extends State<AppyPage> {
           buttonText: "확인",
           onConfirm: () {
             Navigator.of(context).pop();
+            setState(() {
+              _isNewGift = true;
+            });
           },
         ); // 최대값 도달 시 팝업 호출
         currentProgressNum = 0; // 진행 상태 초기화
@@ -173,7 +176,7 @@ class _AppyPageState extends State<AppyPage> {
                             bottomRight: Radius.circular(20), // 오른쪽 하단 모서리 둥글게
                           ),
                           child: SizedBox(
-                            height: 380,
+                            height: 370,
                             child: Image.asset(
                               "assets/images/appy_background2.png",
                               fit: BoxFit.fitHeight,
@@ -184,11 +187,8 @@ class _AppyPageState extends State<AppyPage> {
                     ),
                     // 에피
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Container(
-                          height: 20,
-                        ),
                         //말풍선 영역
                         SizedBox(
                           height: 90,
@@ -208,8 +208,8 @@ class _AppyPageState extends State<AppyPage> {
                           onTap: () {
                             if (!_isAnimating) {
                               setState(() {
-                                _getRandomText(
-                                    characterTexts[widget.appyType]); //말풍선 클릭시 텍스트 변경
+                                _getRandomText(characterTexts[
+                                    widget.appyType]); //말풍선 클릭시 텍스트 변경
                                 _isAnimating = true; // 애니메이션 시작
                               });
                             }
@@ -221,13 +221,15 @@ class _AppyPageState extends State<AppyPage> {
                               IconButton(
                                   onPressed: () {
                                     // 이전 인덱스가 있는 경우
-                                    int preIndex = appyIDs.indexOf(widget.appyID) - 1;
+                                    int preIndex =
+                                        appyIDs.indexOf(widget.appyID) - 1;
                                     if (preIndex >= 0) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: appyIDs[preIndex], appyType: appyTypes[preIndex],
+                                            appyID: appyIDs[preIndex],
+                                            appyType: appyTypes[preIndex],
                                           ),
                                         ),
                                       );
@@ -248,23 +250,24 @@ class _AppyPageState extends State<AppyPage> {
                               ),
                               // 다음 에피로 이동 버튼
                               IconButton(
-                                onPressed: () {
-                                  // 다음 인덱스가 있는 경우
-                                  int nextIndex = appyIDs.indexOf(widget.appyID) + 1;
-                                  if (nextIndex < appyIDs.length) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => AppyPage(
-                                          appyID: appyIDs[nextIndex], appyType: appyTypes[nextIndex],
+                                  onPressed: () {
+                                    // 다음 인덱스가 있는 경우
+                                    int nextIndex =
+                                        appyIDs.indexOf(widget.appyID) + 1;
+                                    if (nextIndex < appyIDs.length) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AppyPage(
+                                            appyID: appyIDs[nextIndex],
+                                            appyType: appyTypes[nextIndex],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  } else {
-                                    // 동작 안하기
-                                  }
-
-                                },
+                                      );
+                                    } else {
+                                      // 동작 안하기
+                                    }
+                                  },
                                   icon: FaIcon(
                                     FontAwesomeIcons.caretRight,
                                     size: IconSize.large,
@@ -333,6 +336,7 @@ class _AppyPageState extends State<AppyPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               //프로그레스 바
@@ -356,10 +360,6 @@ class _AppyPageState extends State<AppyPage> {
                                 barRadius: const Radius.circular(15.0),
                                 progressColor: AppColors.accent,
                               ),
-                              // Image.asset(
-                              //   "assets/icons/gift_box_question.png",
-                              //   height: 40,
-                              // ),
                             ],
                           ),
                           const SizedBox(
