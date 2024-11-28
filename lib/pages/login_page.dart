@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/pages/signup_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -39,44 +41,64 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
-  void _handleLogin() {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
+  void _handleLogin() async {
+  final String email = _emailController.text.trim();
+  final String password = _passwordController.text.trim();
 
-    // TODO: 백엔드 API 연동 필요
-    // - email, password를 서버로 전송하여 인증
-    // - 성공 시 응답 데이터 처리 (예: 토큰 저장)
-    // - 실패 시 에러 메시지 표시
+  final url = Uri.parse("http://192.168.0.54:8081/api/users/login");
+  final headers = {"Content-Type": "application/json"};
+  final body = jsonEncode({
+    "USER_ID": email,
+    "USER_PW": password,
+  });
 
-    // 예제: 이메일 및 비밀번호 확인 조건
-    if (email != "registered@example.com") {
-      showCustomErrorDialog(
-          context: context,
-          message: "등록된 이메일이 없습니다.",
-          buttonText: "확인",
-          onConfirm: () {
-            Navigator.of(context).pop();
-          },
-        );
-    } else if (password != "correctPassword") {
-      showCustomErrorDialog(
-          context: context,
-          message: "비밀번호가 일치하지 않습니다.",
-          buttonText: "확인",
-          onConfirm: () {
-            Navigator.of(context).pop();
-          },
-        );
-    } else {
-      //로그인 성공 시 페이지 이동(수정 필요!!!!!!!!!!)
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      // 로그인 성공
+      print("로그인 성공: ${response.body}");
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const HomePage(), // Replace with the desired page
+          builder: (context) => const HomePage(),
         ),
       );
+    } else if (response.statusCode == 400) {
+      // 로그인 실패 - 서버에서 반환된 에러 메시지 처리
+      final String errorMessage = utf8.decode(response.bodyBytes); // 응답 메시지 디코딩
+      showCustomErrorDialog(
+        context: context,
+        message: errorMessage, // 서버 메시지 그대로 표시
+        buttonText: "확인",
+        onConfirm: () {
+          Navigator.of(context).pop();
+        },
+      );
+    } else {
+      // 기타 에러 처리
+      showCustomErrorDialog(
+        context: context,
+        message: "로그인 중 문제가 발생했습니다. 다시 시도해주세요.",
+        buttonText: "확인",
+        onConfirm: () {
+          Navigator.of(context).pop();
+        },
+      );
     }
+  } catch (e) {
+    // 네트워크 에러 처리
+    print("네트워크 에러: $e");
+    showCustomErrorDialog(
+      context: context,
+      message: "서버와 연결할 수 없습니다. 인터넷 연결을 확인해주세요.",
+      buttonText: "확인",
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
