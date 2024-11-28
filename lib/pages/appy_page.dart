@@ -22,7 +22,7 @@ class AppyPage extends StatefulWidget {
 
   @override
   State<AppyPage> createState() => _AppyPageState();
-}
+} 
 
 class _AppyPageState extends State<AppyPage> {
   late String randomText;
@@ -173,7 +173,7 @@ class _AppyPageState extends State<AppyPage> {
                             bottomRight: Radius.circular(20), // 오른쪽 하단 모서리 둥글게
                           ),
                           child: SizedBox(
-                            height: 370,
+                            height: 380,
                             child: Image.asset(
                               "assets/images/appy_background2.png",
                               fit: BoxFit.fitHeight,
@@ -184,8 +184,11 @@ class _AppyPageState extends State<AppyPage> {
                     ),
                     // 에피
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Container(
+                          height: 20,
+                        ),
                         //말풍선 영역
                         SizedBox(
                           height: 90,
@@ -330,7 +333,6 @@ class _AppyPageState extends State<AppyPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               //프로그레스 바
@@ -354,6 +356,10 @@ class _AppyPageState extends State<AppyPage> {
                                 barRadius: const Radius.circular(15.0),
                                 progressColor: AppColors.accent,
                               ),
+                              // Image.asset(
+                              //   "assets/icons/gift_box_question.png",
+                              //   height: 40,
+                              // ),
                             ],
                           ),
                           const SizedBox(

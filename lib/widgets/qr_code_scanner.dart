@@ -1,4 +1,5 @@
 import 'package:appy_app/pages/add_appy_page.dart';
+import 'package:appy_app/pages/add_module_appy_conn.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -22,7 +23,7 @@ class QrCodeScanner extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddAppyPage(),
+                builder: (context) => const AddModuleAppyConnPage(),
               ),
             ).then((_) {
               // 페이지 이동 후 플래그 초기화

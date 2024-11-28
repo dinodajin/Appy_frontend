@@ -236,7 +236,6 @@ void showCustomErrorDialog({
   );
 }
 
-
 // Container BuildInteractionButton(String buttonName) {
 //   return Container(
 //           width: 100,
