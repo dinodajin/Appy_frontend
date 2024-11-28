@@ -26,6 +26,7 @@ class IconSize {
 }
 
 class TextSize {
+  static const double huge = 32.0;
   static const double large = 26.0;
   static const double medium = 20.0;
   static const double small = 16.0;
@@ -35,4 +36,10 @@ class TextSize {
 
 class AppPadding {
   static const body = EdgeInsets.all(15);
+}
+
+class ImageSize {
+  static const double appyTiny = 50.0;
+  static const double appySmall = 100.0;
+  static const double appyLarge = 230.0;
 }

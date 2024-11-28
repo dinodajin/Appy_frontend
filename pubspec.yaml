@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  introduction_screen : ^3.1.10
   font_awesome_flutter: ^9.2.0
   flutter:
     sdk: flutter
@@ -86,6 +87,9 @@ flutter:
           weight: 800
         - asset: assets/fonts/SUITE-Heavy.otf
           weight: 900
+    - family : CustomIcon
+      fonts:
+      - asset: assets/fonts/CustomIcon.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

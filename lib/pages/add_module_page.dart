@@ -18,13 +18,13 @@ class _AddModulePageState extends State<AddModulePage> {
   void initState() {
     super.initState();
 
-    // 1초 후에 다음 페이지로 이동 (임시)
-    // Future.delayed(const Duration(seconds: 1), () {
-    //   setState(() {
-    //     Navigator.push(context,
-    //         MaterialPageRoute(builder: (context) => const AddAppyPage()));
-    //   });
-    // });
+  //   // 1초 후에 다음 페이지로 이동 (임시)
+  //   Future.delayed(const Duration(seconds: 1), () {
+  //     setState(() {
+  //       Navigator.push(context,
+  //           MaterialPageRoute(builder: (context) => const AddAppyPage()));
+  //     }); 
+  //   });
   }
 
   @override

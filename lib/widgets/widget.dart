@@ -152,6 +152,9 @@ AppBar BuildBigAppBar(BuildContext context, String title, String imagePath) {
   );
 }
 
+
+
+
 void showCustomErrorDialog({
   required BuildContext context,
   required String message,
@@ -176,7 +179,9 @@ void showCustomErrorDialog({
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15),
+              style: const TextStyle(
+                fontSize: TextSize.small,
+                fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 10),
           ],
@@ -193,7 +198,8 @@ void showCustomErrorDialog({
                 backgroundColor: Colors.grey[300],
                 foregroundColor: Colors.black,
                 textStyle: const TextStyle(
-                  fontSize: 15,
+                  fontSize: TextSize.small,
+                  fontWeight: FontWeight.w700
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0),
@@ -209,10 +215,12 @@ void showCustomErrorDialog({
                   Navigator.of(context).pop(); // 기본 동작: 팝업 닫기
                 },
             style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFF66CFA3),
+              backgroundColor: AppColors.accent,
               foregroundColor: Colors.white,
               textStyle: const TextStyle(
-                fontSize: 15,
+                fontFamily: "SUITE",
+                fontSize: TextSize.small,
+                fontWeight: FontWeight.w700
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5.0),
@@ -227,7 +235,6 @@ void showCustomErrorDialog({
     },
   );
 }
-
 
 // Container BuildInteractionButton(String buttonName) {
 //   return Container(

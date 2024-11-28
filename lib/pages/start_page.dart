@@ -13,49 +13,82 @@ class StartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColors.accent,
-        body: SafeArea(
-            child: Padding(
-                padding: AppPadding.body,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Appy",
-                        style: TextStyle(
-                          fontSize: 60,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      Container(
-                        height: 300,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // 페이지 이동
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
-                        },
-                        child: _buildStartButton(
-                            "로그인", AppColors.background, AppColors.textHigh),
-                      ),
-                      Container(
-                        height: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // 페이지 이동
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SignUpPage()));
-                        },
-                        child: _buildStartButton(
-                            "회원가입", AppColors.background, AppColors.textHigh),
-                      ),
-                    ]))));
+        body: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage("assets/images/start_background.png"),
+                      fit: BoxFit.fill)),
+            ),
+            SafeArea(
+                child: Padding(
+                    padding: AppPadding.body,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 20,
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left: 15),
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Appy",
+                                  style: TextStyle(
+                                    fontSize: 60,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                Text("에피소드를 시작해보세요",
+                                    style: TextStyle(
+                                      fontSize: TextSize.large,
+                                      fontWeight: FontWeight.w700,
+                                    ))
+                              ],
+                            ),
+                          ),
+                          Container(
+                            height: 200,
+                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  // 페이지 이동
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoginPage()));
+                                },
+                                child: _buildStartButton("로그인",
+                                    AppColors.primary, AppColors.textHigh),
+                              ),
+                              Container(
+                                height: 20,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  // 페이지 이동
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SignUpPage()));
+                                },
+                                child: _buildStartButton("회원가입",
+                                    AppColors.background, AppColors.textHigh),
+                              ),
+                            ],
+                          ),
+                        ]))),
+          ],
+        ));
   }
 }
 
@@ -74,7 +107,7 @@ Container _buildStartButton(
       style: TextStyle(
         color: textColor,
         fontSize: TextSize.medium,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       ),
     ),
   );

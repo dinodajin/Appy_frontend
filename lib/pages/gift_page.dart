@@ -4,8 +4,8 @@ import 'package:appy_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
 class GiftPage extends StatefulWidget {
-  final int characterId = 3; // 캐릭터 ID 전달
-  final int characterLevel = 3; // 해당 캐릭터의 레벨
+  final int characterId = 1; // 캐릭터 ID 전달
+  final int characterLevel = 5; // 해당 캐릭터의 레벨
   const GiftPage({super.key});
   // const GiftPage({
   //   super.key
@@ -22,7 +22,7 @@ class _GiftPageState extends State<GiftPage> {
     // 캐릭터 이름 반환
     switch (characterId) {
       case 1:
-        return "래비의 선물함";
+        return "레비의 선물함";
       case 2:
         return "누비의 선물함";
       case 3:
@@ -47,38 +47,39 @@ class _GiftPageState extends State<GiftPage> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 42.0),
+          padding: const EdgeInsets.only(left: 42.0, right: 42.0, bottom: 20.0),
           child: Column(
             children: [
-              const SizedBox(height: 41), // 앱바와 첫 줄 사이 거리
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // 한 줄에 3개
-                    crossAxisSpacing: 30, // 가로 간격
-                    mainAxisSpacing: 42, // 세로 간격
-                    childAspectRatio: 1, // 1:1 비율
-                  ),
-                  itemCount: 12, // 항상 12개의 아이템 슬롯을 렌더링
-                  itemBuilder: (context, index) {
-                    final level = index + 1; // 레벨 기준
-                    if (level <= widget.characterLevel) {
-                      // 잠금 해제된 아이템
-                      return GestureDetector(
-                        onTap: () {
-                          _onUnlockedItemTap(level);
-                        },
-                        child: _buildUnlockedItem(
-                          _getGiftImagePath(widget.characterId, level),
-                        ),
-                      );
-                    } else {
-                      // 잠금 상태 아이템
-                      return _buildLockedItem();
-                    }
-                  },
+              Expanded(child: Container()), // 상단 여백
+              GridView.builder(
+                shrinkWrap: true, // GridView 크기를 필요한 만큼만 설정
+                padding: const EdgeInsets.all(10.0),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, // 한 줄에 3개
+                  crossAxisSpacing: 30, // 가로 간격
+                  mainAxisSpacing: 42, // 세로 간격
+                  childAspectRatio: 1, // 1:1 비율
                 ),
+                itemCount: 12, // 항상 12개의 아이템 슬롯을 렌더링
+                itemBuilder: (context, index) {
+                  final level = index + 1; // 레벨 기준
+                  if (level <= widget.characterLevel) {
+                    // 잠금 해제된 아이템
+                    return GestureDetector(
+                      onTap: () {
+                        _onUnlockedItemTap(level);
+                      },
+                      child: _buildUnlockedItem(
+                        _getGiftImagePath(widget.characterId, level),
+                      ),
+                    );
+                  } else {
+                    // 잠금 상태 아이템
+                    return _buildLockedItem();
+                  }
+                },
               ),
+              Expanded(child: Container()), // 하단 여백
             ],
           ),
         ),

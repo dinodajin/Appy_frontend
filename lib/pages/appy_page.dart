@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:appy_app/pages/chat_page.dart';
 import 'package:appy_app/pages/gift_page.dart';
+import 'package:appy_app/widgets/appy.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,11 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 
 // home에서 에피 하나를 눌렀을때 에피와 상호작용할 수 있는 페이지
 class AppyPage extends StatefulWidget {
-  final String appyID; // Appy의 ID
+  final String appyID;
+  final int appyType; // Appy의 ID
   const AppyPage({
     required this.appyID, //이름 초기화
+    required this.appyType, // Appy의 ID
     super.key,
   });
 
@@ -22,27 +25,6 @@ class AppyPage extends StatefulWidget {
 }
 
 class _AppyPageState extends State<AppyPage> {
-  String appyName = "레비";
-
-  // 말풍선 텍스트 리스트
-  final List<String> texts = [
-    "오늘은 무엇을 해볼까? 멋진 하루가 될 거야!",
-    "힘들 땐 잠시 쉬어도 괜찮아. 넌 잘하고 있어!",
-    "모든 순간을 즐겨봐. 넌 특별한 사람이야!",
-    "오늘도 내 최고의 에피소드는 너랑 함께야!",
-    "나랑 숨바꼭질 게임 해볼래? 시작한다!",
-    "나도 가끔은 너랑 같이 출근하고 싶어!",
-    "내가 항상 여기 있을게."
-  ];
-
-  final List<String> snackTexts = [
-    "옴뇸뇸 맛있당",
-    "고마워! 너도 하나 먹을래?",
-    "내가 제일 좋아하는 맛이야!",
-    "혹시 다른 맛은 없어...? 농담이야!",
-    "사탕도 좋고 너도 좋아!"
-  ];
-
   late String randomText;
   bool _isAnimating = true; // 애니메이션 상태 플래그
   bool _isNewChat = true;
@@ -50,7 +32,7 @@ class _AppyPageState extends State<AppyPage> {
   String? lastText; // 랜덤 텍스트 선택 중복 방지용
 
   // 사탕 개수 초기화
-  int currentCandyNum = 10;
+  int currentCandyNum = 5;
 
   // 프로그레스 바 초기화
   int currentProgressNum = 5; // 현재 진행 상태
@@ -59,7 +41,10 @@ class _AppyPageState extends State<AppyPage> {
   @override
   void initState() {
     super.initState();
-    _getRandomText(texts); // 초기화 시 랜덤 텍스트 설정
+    String appyID = widget.appyID;
+    int appyType = widget.appyType;
+
+    _getRandomText(characterTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
   }
 
   // 랜덤 텍스트 선택
@@ -74,51 +59,29 @@ class _AppyPageState extends State<AppyPage> {
   }
 
   // 프로그레스 바 단계별 증가
-  void _feed() async {
+  void _feed(appyType) async {
     setState(() {
       currentCandyNum--;
       currentProgressNum += 1; // 단계별 증가
 
       // 말풍선 텍스트를 간식 텍스트 중 랜덤하게 선택
-      _getRandomText(snackTexts);
+      _getRandomText(snackTexts[appyType]);
 
       if (currentProgressNum >= maxSteps) {
-        _showCompletionDialog(); // 최대값 도달 시 팝업 호출
+        showCustomErrorDialog(
+          context: context,
+          message: "${appyNamesKo[appyType]}의 선물이 도착했습니다.\n선물함을 확인해주세요.",
+          buttonText: "확인",
+          onConfirm: () {
+            Navigator.of(context).pop();
+            setState(() {
+              _isNewGift = true;
+            });
+          },
+        ); // 최대값 도달 시 팝업 호출
         currentProgressNum = 0; // 진행 상태 초기화
       }
     });
-  }
-
-  void _showCompletionDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            "축하합니다!",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          content: Text(
-            "$appyName의 선물이 도착했습니다.\n선물함을 확인해주세요.",
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-                fontSize: TextSize.small, fontWeight: FontWeight.w600),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 팝업 닫기
-                setState(() {
-                  _isNewGift = true;
-                });
-              },
-              child: const Text("확인"),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -181,7 +144,7 @@ class _AppyPageState extends State<AppyPage> {
                             bottomRight: Radius.circular(20), // 오른쪽 하단 모서리 둥글게
                           ),
                           child: SizedBox(
-                            height: 420,
+                            height: 370,
                             child: Image.asset(
                               "assets/images/appy_background2.png",
                               fit: BoxFit.fitHeight,
@@ -206,14 +169,15 @@ class _AppyPageState extends State<AppyPage> {
                               }),
                         ),
                         Container(
-                          height: 40,
+                          height: 20,
                         ),
                         // 에피 영역
                         GestureDetector(
                           onTap: () {
                             if (!_isAnimating) {
                               setState(() {
-                                _getRandomText(texts); //말풍선 클릭시 텍스트 변경
+                                _getRandomText(characterTexts[
+                                    widget.appyType]); //말풍선 클릭시 텍스트 변경
                                 _isAnimating = true; // 애니메이션 시작
                               });
                             }
@@ -223,7 +187,24 @@ class _AppyPageState extends State<AppyPage> {
                             children: [
                               // 이전 에피로 이동 버튼
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    // 이전 인덱스가 있는 경우
+                                    int preIndex =
+                                        appyIDs.indexOf(widget.appyID) - 1;
+                                    if (preIndex >= 0) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AppyPage(
+                                            appyID: appyIDs[preIndex],
+                                            appyType: appyTypes[preIndex],
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      // 동작 안하기
+                                    }
+                                  },
                                   icon: FaIcon(
                                     FontAwesomeIcons.caretLeft,
                                     size: IconSize.large,
@@ -232,12 +213,29 @@ class _AppyPageState extends State<AppyPage> {
                                   )),
                               // 에피 이미지
                               Image.asset(
-                                "assets/images/appy_levi_side_light.png",
+                                "assets/images/${appySideImages[widget.appyType]}",
                                 height: 240,
                               ),
                               // 다음 에피로 이동 버튼
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    // 다음 인덱스가 있는 경우
+                                    int nextIndex =
+                                        appyIDs.indexOf(widget.appyID) + 1;
+                                    if (nextIndex < appyIDs.length) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AppyPage(
+                                            appyID: appyIDs[nextIndex],
+                                            appyType: appyTypes[nextIndex],
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      // 동작 안하기
+                                    }
+                                  },
                                   icon: FaIcon(
                                     FontAwesomeIcons.caretRight,
                                     size: IconSize.large,
@@ -255,7 +253,7 @@ class _AppyPageState extends State<AppyPage> {
                   padding: const EdgeInsets.all(15.0),
                   // 에피 이름 가져오기
                   child: Text(
-                    appyName,
+                    appyNamesKo[widget.appyType],
                     style: const TextStyle(
                       fontSize: TextSize.large,
                       fontWeight: FontWeight.bold,
@@ -313,15 +311,15 @@ class _AppyPageState extends State<AppyPage> {
                               LinearPercentIndicator(
                                 backgroundColor: AppColors.iconBackground,
                                 alignment: MainAxisAlignment.center,
-                                width: 300.0,
+                                width: 280.0,
                                 animation: true,
                                 animationDuration: 200,
                                 animateFromLastPercent: true,
                                 lineHeight: 28.0,
                                 trailing: Image.asset(
-                                      "assets/icons/gift_box_question.png",
-                                      height: 40,
-                                    ),
+                                  "assets/icons/gift_box_question.png",
+                                  height: 40,
+                                ),
                                 percent: currentProgressNum / maxSteps,
                                 // center: Text('$currentProgressNum',
                                 //     style: TextStyle(
@@ -344,7 +342,7 @@ class _AppyPageState extends State<AppyPage> {
                                     ElevatedButton(
                                       onPressed: () {
                                         if (currentCandyNum > 0) {
-                                          _feed(); // 사탕 주기 로직 실행
+                                          _feed(widget.appyType); // 사탕 주기 로직 실행
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(const SnackBar(

@@ -23,13 +23,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final Random _random = Random();
   final List<Map<String, double>> _startPositions = [
     {"top": 300, "left": 200},
-    {"top": 400, "left": 150},
+    {"top": 200, "left": 150},
+    {"top": 200, "left": 300},
   ];
 
   // 영역 제한 값 설정
   final double topMin = 200;
-  final double topMax = 500;
-  late double leftMin = 0;
+  final double topMax = 400;
+  late double leftMin = 10;
   late double leftMax = 300;
 
   @override
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // 각각의 AnimationController 생성
       final controller = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 600),
       );
 
       _controllers.add(controller);
@@ -57,7 +58,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       // 애니메이션 상태 변경 감지 및 반복 실행
       controller.addStatusListener((status) {
-        if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        if (status == AnimationStatus.completed ||
+            status == AnimationStatus.dismissed) {
           _setNewAnimationValues(i);
           controller.forward(from: 0); // 다시 애니메이션 시작
         }
@@ -80,11 +82,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     // 애니메이션 업데이트
     setState(() {
       if (_topAnimations.length > index) {
-        _topAnimations[index] = Tween<double>(begin: startTop, end: newTop).animate(_controllers[index]);
-        _leftAnimations[index] = Tween<double>(begin: startLeft, end: newLeft).animate(_controllers[index]);
+        _topAnimations[index] = Tween<double>(begin: startTop, end: newTop)
+            .animate(_controllers[index]);
+        _leftAnimations[index] = Tween<double>(begin: startLeft, end: newLeft)
+            .animate(_controllers[index]);
       } else {
-        _topAnimations.add(Tween<double>(begin: startTop, end: newTop).animate(_controllers[index]));
-        _leftAnimations.add(Tween<double>(begin: startLeft, end: newLeft).animate(_controllers[index]));
+        _topAnimations.add(Tween<double>(begin: startTop, end: newTop)
+            .animate(_controllers[index]));
+        _leftAnimations.add(Tween<double>(begin: startLeft, end: newLeft)
+            .animate(_controllers[index]));
       }
 
       // 새로운 시작 위치 업데이트
@@ -92,7 +98,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _startPositions[index]["left"] = newLeft;
     });
   }
-
 
   @override
   void dispose() {
@@ -134,14 +139,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppyPage(
-                          appyID: "001",
+                          appyID: "ID001", appyType: 0,
                         ),
                       ),
                     );
                   },
                   child: Image.asset(
                     "assets/images/appy_levi.png",
-                    height: 100,
+                    height: ImageSize.appySmall,
                   ),
                 ),
               );
@@ -161,36 +166,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppyPage(
-                          appyID: "002",
+                          appyID: "ID002",
+                          appyType: 1,
                         ),
                       ),
                     );
                   },
                   child: Image.asset(
-                    "assets/images/appy_nubi.png",
-                    height: 100,
+                    "assets/images/appy_bobby.png",
+                    height: ImageSize.appySmall,
                   ),
                 ),
               );
             },
           ),
 
-          //두번째 에피
-          // GestureDetector(
-          //   onTap: () {
-          //     // 페이지 이동
-          //     Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //             builder: (context) => const AppyPage(
-          //                   appyID: "002",
-          //                 )));
-          //   },
-          //   child: Image.asset(
-          //     "assets/images/appy_levi.png",
-          //     width: 100,
-          //   ),
-          // ),
+          //2번째 에피
+          AnimatedBuilder(
+            animation: _controllers[2],
+            builder: (context, child) {
+              return Positioned(
+                top: _topAnimations[2].value,
+                left: _leftAnimations[2].value,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AppyPage(
+                          appyID: "ID003",
+                          appyType: 2,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Image.asset(
+                    "assets/images/appy_nubi.png",
+                    height: ImageSize.appySmall,
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

@@ -19,8 +19,8 @@ class _AddAppyPageState extends State<AddAppyPage> {
   void initState() {
     super.initState();
 
-    // 1초 후에 이미지 표시 여부 상태 변경 (QR 찍혔다고 가정)
-    Future.delayed(const Duration(seconds: 2), () {
+    // 2초 후에 이미지 표시 여부 상태 변경 (QR 찍혔다고 가정)
+    Future.delayed(const Duration(seconds: 3), () {
       setState(() {
         _showImage = true;
       });
@@ -32,81 +32,96 @@ class _AddAppyPageState extends State<AddAppyPage> {
     return Scaffold(
       appBar: BuildSettingAppBar(context, "Appy 등록"),
       body: SafeArea(
-          child: Padding(
-        padding: AppPadding.body,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 등록된 모듈 이름 가져오기
-            Column(
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      height: 20,
-                    ),
-                    // 연결된 모듈 이름이 표시됨
-                    const Text(
-                      "MOA TV",
-                      style: TextStyle(
-                        color: AppColors.textMedium,
-                        fontSize: TextSize.medium,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Container(
-                      height: 10,
-                    ),
-                    Container(
-                      color: AppColors.buttonDisabled,
-                      height: 1,
-                    ),
-                    Container(
-                      height: 100,
-                    ),
-                    Container(
-                      child: _showImage
-                          ? Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Image.asset("assets/images/appy_levi.png",
-                                height: 300,
-                                ),
-                                Container(
-                                  height: 100,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    // 로그인 처리 api
-                                    // 수정 필요
-
-                                    // 페이지 이동
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const HomePage()));
-                                  },
-                                  child: BuildButton("Appy를 등록하기",
-                                      AppColors.accent, AppColors.textWhite),
-                                )
-                              ],
-                            )
-                          : const Text("장착된 Appy를 확인할 수 없습니다",
-                              style: TextStyle(
-                                color: AppColors.textHigh,
-                                fontSize: TextSize.medium,
-                                fontWeight: FontWeight.w700,
-                              )),
-                    )
-                  ],
+        child: Padding(
+          padding: AppPadding.body,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 상단 "MOA TV" 제목 및 구분선
+              const SizedBox(height: 20),
+              const Text(
+                "MOA TV",
+                style: TextStyle(
+                  color: AppColors.textMedium,
+                  fontSize: TextSize.medium,
+                  fontWeight: FontWeight.w700,
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 10),
+              Container(
+                color: AppColors.buttonDisabled,
+                height: 1,
+              ),
+
+              // Expanded로 나머지 공간 처리
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_showImage)
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              "assets/images/appy_levi.png",
+                              height: 300,
+                            ),
+                          ],
+                        )
+                      else
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment:
+                                MainAxisAlignment.center, // 세로 가운데 정렬
+                            children: const [
+                              Text(
+                                "장착된 Appy를 확인할 수 없습니다",
+                                style: TextStyle(
+                                  color: AppColors.textHigh,
+                                  fontSize: TextSize.medium,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 30), // 메시지 아래 여백
+                    ],
+                  ),
+                ),
+              ),
+
+              // 하단 고정된 버튼
+              GestureDetector(
+                onTap: _showImage
+                    ? () {
+                        // _showImage가 true일 때만 작동
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ),
+                        );
+                      }
+                    : null, // 버튼 비활성화 (_showImage가 false일 때)
+                child: BuildButton(
+                  "Appy 등록하러 가기",
+                  _showImage
+                      ? AppColors.accent // 활성화 색상 (_showImage가 true일 때)
+                      : AppColors
+                          .buttonDisabled, // 비활성화 색상 (_showImage가 false일 때)
+                  AppColors.textWhite,
+                ),
+              ),
+
+              // 하단 버튼 아래 여백
+              const SizedBox(height: 130),
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }

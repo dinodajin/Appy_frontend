@@ -21,7 +21,7 @@ class _DiaryPageState extends State<DiaryPage> {
     // 캐릭터 ID에 따라 다이어리 제목 설정
     switch (characterId) {
       case 1:
-        return "래비의 그림일기";
+        return "레비의 그림일기";
       case 2:
         return "누비의 그림일기";
       case 3:
@@ -47,9 +47,10 @@ class _DiaryPageState extends State<DiaryPage> {
         child: Padding(
           padding: AppPadding.body,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
             crossAxisAlignment: CrossAxisAlignment.center, // 가로 중앙 정렬
             children: [
-              const SizedBox(height: 66), // 앱바와 이미지 간의 간격
+              // const SizedBox(height: 66), // 앱바와 이미지 간의 간격
               Align(
                 alignment: Alignment.center, // 가로 방향 중앙 정렬
                 child: _buildDiaryImage(diaryImagePath), // 이미지 위젯 생성
@@ -70,9 +71,20 @@ class _DiaryPageState extends State<DiaryPage> {
           return const CircularProgressIndicator(); // 로딩 표시
         } else if (snapshot.hasData && snapshot.data == true) {
           // 이미지가 존재할 경우
-          return Image.asset(
-            imagePath,
-            fit: BoxFit.contain, // 이미지 크기 조정
+          final screenWidth = MediaQuery.of(context).size.width;
+          final screenHeight = MediaQuery.of(context).size.height;
+
+          // 화면 크기 비례로 이미지 크기 조정
+          final imageWidth = screenWidth * 0.8; // 화면 너비의 60%
+          final imageHeight = screenHeight * 0.7; // 화면 높이의 30%
+
+          return SizedBox(
+            width: imageWidth,
+            height: imageHeight,
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.contain,
+            ),
           );
         } else {
           // 이미지가 없을 경우 텍스트 표시
