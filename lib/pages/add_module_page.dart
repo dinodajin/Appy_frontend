@@ -26,7 +26,7 @@ class _AddModulePageState extends State<AddModulePage> {
   }
 
   Future<void> _fetchLastModuleId() async {
-    final url = Uri.parse("http://43.203.220.44/:8081/api/modules/last-id");
+    final url = Uri.parse("http://43.203.220.44:8082/api/modules/last-id");
 
     try {
       final response = await http.get(url);
@@ -62,7 +62,7 @@ class _AddModulePageState extends State<AddModulePage> {
   }
 
   Future<void> _sendModuleData(String userId) async {
-    final url = Uri.parse("http://43.203.220.44/:8081/api/modules/save");
+    final url = Uri.parse("http://43.203.220.44:8082/api/modules/save");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "MODULE_ID": moduleId,
@@ -76,7 +76,8 @@ class _AddModulePageState extends State<AddModulePage> {
       if (response.statusCode == 200) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AddModuleAppyConnPage()),
+          MaterialPageRoute(
+              builder: (context) => const AddModuleAppyConnPage()),
         );
       } else {
         _showErrorDialog("모듈 등록 실패: ${response.body}");

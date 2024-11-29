@@ -48,9 +48,9 @@ class _LoginPageState extends State<LoginPage> {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
 
-    final loginUrl = Uri.parse("http://43.203.220.44/:8081/api/users/login");
+    final loginUrl = Uri.parse("http://43.203.220.44:8082/api/users/login");
     final checkModuleUrl =
-        Uri.parse("http://43.203.220.44/:8081/api/modules/check/$email");
+        Uri.parse("http://43.203.220.44:8082/api/modules/check/$email");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "USER_ID": email,

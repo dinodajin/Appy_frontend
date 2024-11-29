@@ -77,7 +77,7 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    final url = Uri.parse("http://43.203.220.44/:8081/api/users");
+    final url = Uri.parse("http://43.203.220.44:8082/api/users");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "USER_ID": email,
@@ -174,104 +174,105 @@ class _SignUpPageState extends State<SignUpPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: AppColors.accent, width: 2.0),
+                          borderSide: const BorderSide(
+                              color: AppColors.accent, width: 2.0),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                 TextButton(
-                  onPressed: () async {
-                    final email = _emailController.text.trim();
+                  TextButton(
+                    onPressed: () async {
+                      final email = _emailController.text.trim();
 
-                    if (isValidEmail(email)) {
-                      print("유효한 이메일 형식입니다.");
+                      if (isValidEmail(email)) {
+                        print("유효한 이메일 형식입니다.");
 
-                      final checkUrl = Uri.parse(
-                          "http://43.203.220.44/:8081/api/users/check/$email");
-                      final headers = {"Content-Type": "application/json"};
+                        final checkUrl = Uri.parse(
+                            "http://43.203.220.44:8082/api/users/check/$email");
+                        final headers = {"Content-Type": "application/json"};
 
-                      try {
-                        final response = await http.get(checkUrl, headers: headers);
+                        try {
+                          final response =
+                              await http.get(checkUrl, headers: headers);
 
-                        if (response.statusCode == 200) {
-                          setState(() {
-                            _isEmailChecked = true;
-                            _isEmailAvailable = true;
-                          });
-                          _updateSignUpButtonState(); // 즉시 버튼 상태 업데이트
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              duration: Duration(seconds: 1),
-                              backgroundColor: AppColors.primary,
-                              content: Center(
-                                child: Text(
-                                  "사용 가능한 이메일입니다.",
-                                  style: TextStyle(
-                                    color: AppColors.textHigh,
-                                    fontSize: TextSize.small,
-                                    fontWeight: FontWeight.w600,
+                          if (response.statusCode == 200) {
+                            setState(() {
+                              _isEmailChecked = true;
+                              _isEmailAvailable = true;
+                            });
+                            _updateSignUpButtonState(); // 즉시 버튼 상태 업데이트
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                duration: Duration(seconds: 1),
+                                backgroundColor: AppColors.primary,
+                                content: Center(
+                                  child: Text(
+                                    "사용 가능한 이메일입니다.",
+                                    style: TextStyle(
+                                      color: AppColors.textHigh,
+                                      fontSize: TextSize.small,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        } else if (response.statusCode == 400) {
-                          setState(() {
-                            _isEmailChecked = true;
-                            _isEmailAvailable = false;
-                          });
-                          _updateSignUpButtonState(); // 즉시 버튼 상태 업데이트
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              duration: Duration(seconds: 1),
-                              backgroundColor: AppColors.primary,
-                              content: Center(
-                                child: Text(
-                                  "이미 등록된 이메일입니다.",
-                                  style: TextStyle(
-                                    color: AppColors.textHigh,
-                                    fontSize: TextSize.small,
-                                    fontWeight: FontWeight.w600,
+                            );
+                          } else if (response.statusCode == 400) {
+                            setState(() {
+                              _isEmailChecked = true;
+                              _isEmailAvailable = false;
+                            });
+                            _updateSignUpButtonState(); // 즉시 버튼 상태 업데이트
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                duration: Duration(seconds: 1),
+                                backgroundColor: AppColors.primary,
+                                content: Center(
+                                  child: Text(
+                                    "이미 등록된 이메일입니다.",
+                                    style: TextStyle(
+                                      color: AppColors.textHigh,
+                                      fontSize: TextSize.small,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        } else {
+                            );
+                          } else {
+                            showCustomErrorDialog(
+                              context: context,
+                              message: "이메일 중복 확인 중 오류가 발생했습니다.",
+                              buttonText: "확인",
+                              onConfirm: () {
+                                Navigator.of(context).pop();
+                              },
+                            );
+                          }
+                        } catch (e) {
+                          print("네트워크 에러: $e");
                           showCustomErrorDialog(
                             context: context,
-                            message: "이메일 중복 확인 중 오류가 발생했습니다.",
+                            message: "서버와 연결할 수 없습니다.",
                             buttonText: "확인",
                             onConfirm: () {
                               Navigator.of(context).pop();
                             },
                           );
                         }
-                      } catch (e) {
-                        print("네트워크 에러: $e");
+                      } else {
                         showCustomErrorDialog(
                           context: context,
-                          message: "서버와 연결할 수 없습니다.",
+                          message: "이메일 형식에 맞게 입력해주세요.",
                           buttonText: "확인",
                           onConfirm: () {
                             Navigator.of(context).pop();
                           },
                         );
                       }
-                    } else {
-                      showCustomErrorDialog(
-                        context: context,
-                        message: "이메일 형식에 맞게 입력해주세요.",
-                        buttonText: "확인",
-                        onConfirm: () {
-                          Navigator.of(context).pop();
-                        },
-                      );
-                    }
-                  },
+                    },
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12.0, vertical: 14.0),
@@ -352,8 +353,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: AppColors.accent, width: 2.0),
+                          borderSide: const BorderSide(
+                              color: AppColors.accent, width: 2.0),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
@@ -388,7 +389,9 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               const SizedBox(height: 16),
               OutlinedButton(
-                onPressed: _isSignUpButtonActive && _isEmailAvailable ? _handleSignUp : null,
+                onPressed: _isSignUpButtonActive && _isEmailAvailable
+                    ? _handleSignUp
+                    : null,
                 style: OutlinedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -416,7 +419,7 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                   // 로그인 페이지로 이동
+                  // 로그인 페이지로 이동
                   Navigator.push(
                     context,
                     MaterialPageRoute(
