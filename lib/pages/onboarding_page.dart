@@ -67,19 +67,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
           context,
           title: '모듈과 Appy를 등록하세요\n',
           iconPath: 'assets/images/onboarding_1.png',
-          bodyImagePath: 'assets/images/appy_levi.png',
+          bodyImagePath: 'assets/images/onboarding_body_1.png',
+          bodyHeight: 200,
         ),
         createPageViewModel(
           context,
           title: 'Appy와 대화하며\n일기장을 수집해보세요',
           iconPath: 'assets/images/onboarding_2.png',
-          bodyImagePath: 'assets/images/appy_levi.png',
+          bodyImagePath: 'assets/images/onboarding_body_2.png',
+          bodyHeight: 180,
         ),
         createPageViewModel(
           context,
           title: '더 다양한 Appy와 모듈을 모아\n세계관을 확장해보세요',
           iconPath: 'assets/images/onboarding_3.png',
-          bodyImagePath: 'assets/images/appy_levi.png',
+          bodyImagePath: 'assets/images/onboarding_body_3.png',
+          bodyHeight: 180
         ),
       ],
       onDone: () {
@@ -118,6 +121,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     required String title,
     required String iconPath,
     required String bodyImagePath,
+    required double bodyHeight,
   }) {
     return PageViewModel(
       titleWidget: Column(
@@ -125,7 +129,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           const SizedBox(height: 80), // 아이콘부터 제목까지의 거리
           Image.asset(
             iconPath, // 아이콘
-            width: 100,
+            width: 80,
           ),
           const SizedBox(height: 50), // 제목부터 이미지 까지의 거리
           Text(
@@ -141,9 +145,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
       bodyWidget: SizedBox(
         height: MediaQuery.of(context).size.height * 0.5, // 부모 높이의 50% 설정
         child: Center(
-          child: Image.asset(
+          child:  Image.asset(
             bodyImagePath, // 이미지
-            width: 150,
+            height: bodyHeight,
             fit: BoxFit.contain,
           ),
         ),

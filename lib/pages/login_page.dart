@@ -47,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
   final String email = _emailController.text.trim();
   final String password = _passwordController.text.trim();
 
+
   final loginUrl = Uri.parse("http://192.168.0.54:8081/api/users/login");
   final checkModuleUrl = Uri.parse("http://192.168.0.54:8081/api/modules/check/$email");
   final headers = {"Content-Type": "application/json"};
@@ -54,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     "USER_ID": email,
     "USER_PW": password,
   });
+
 
   try {
     // 로그인 요청
@@ -118,12 +120,14 @@ class _LoginPageState extends State<LoginPage> {
       showCustomErrorDialog(
         context: context,
         message: errorMessage, // 서버 메시지 그대로 표시
+
         buttonText: "확인",
         onConfirm: () {
           Navigator.of(context).pop();
         },
       );
     } else {
+
       // 기타 에러 처리
       showCustomErrorDialog(
         context: context,
@@ -132,6 +136,7 @@ class _LoginPageState extends State<LoginPage> {
         onConfirm: () {
           Navigator.of(context).pop();
         },
+
       );
     }
   } catch (e) {
@@ -152,7 +157,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     // 화면 높이를 기준으로 키보드 상태를 반영
     final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
@@ -190,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color.fromRGBO(127, 212, 173, 0.16),
+                    fillColor: AppColors.accent.withOpacity(0.16),
                     hintText: '이메일을 입력하세요',
                     hintStyle: const TextStyle(color: Colors.black),
                     contentPadding: const EdgeInsets.symmetric(
@@ -200,7 +204,8 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.accent),
+                      borderSide:
+                          const BorderSide(color: AppColors.accent, width: 2),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
@@ -212,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color.fromRGBO(127, 212, 173, 0.16),
+                    fillColor: AppColors.accent.withOpacity(0.16),
                     hintText: '비밀번호를 입력하세요',
                     hintStyle: const TextStyle(color: Colors.black),
                     contentPadding: const EdgeInsets.symmetric(
@@ -222,7 +227,8 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.accent),
+                      borderSide:
+                          const BorderSide(color: AppColors.accent, width: 2),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
@@ -272,18 +278,16 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         "계정이 없으신가요? ",
                         style: TextStyle(
-                          color: AppColors.textMedium,
-                          fontSize: TextSize.small,
-                          fontWeight: FontWeight.w500
-                        ),
+                            color: AppColors.textMedium,
+                            fontSize: TextSize.small,
+                            fontWeight: FontWeight.w500),
                       ),
                       Text(
                         "회원가입",
                         style: TextStyle(
-                          color: AppColors.textHigh,
-                          fontSize: TextSize.small,
-                          fontWeight: FontWeight.w700
-                        ),
+                            color: AppColors.textHigh,
+                            fontSize: TextSize.small,
+                            fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
