@@ -1,4 +1,5 @@
 import 'package:appy_app/pages/add_appy_page.dart';
+import 'package:appy_app/pages/add_module_appy_conn.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:appy_app/widgets/widget.dart';
@@ -18,13 +19,15 @@ class _AddModulePageState extends State<AddModulePage> {
   void initState() {
     super.initState();
 
-  //   // 1초 후에 다음 페이지로 이동 (임시)
-  //   Future.delayed(const Duration(seconds: 1), () {
-  //     setState(() {
-  //       Navigator.push(context,
-  //           MaterialPageRoute(builder: (context) => const AddAppyPage()));
-  //     }); 
-  //   });
+    // 1초 후에 모듈 등록 완료 페이지로 이동 (임시)
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const AddModuleAppyConnPage()));
+      });
+    });
   }
 
   @override
@@ -48,7 +51,6 @@ class _AddModulePageState extends State<AddModulePage> {
                   color: AppColors.textHigh,
                   fontSize: TextSize.medium,
                   fontWeight: FontWeight.w700,
-                  
                 ),
               ),
               Container(
