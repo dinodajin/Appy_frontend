@@ -14,6 +14,8 @@ class AddModuleAppyConnPage extends StatefulWidget {
 }
 
 class _AddModuleAppyConnPageState extends State<AddModuleAppyConnPage> {
+  String moduleName = "MOA TV";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,9 +28,9 @@ class _AddModuleAppyConnPageState extends State<AddModuleAppyConnPage> {
             children: [
               const SizedBox(height: 20), // 모듈 이름 위 여백
               // 모듈 이름 받아오기
-              const Text(
-                "MOA TV",
-                style: TextStyle(
+              Text(
+                moduleName,
+                style: const TextStyle(
                   color: AppColors.textMedium,
                   fontSize: TextSize.medium,
                   fontWeight: FontWeight.w700,
