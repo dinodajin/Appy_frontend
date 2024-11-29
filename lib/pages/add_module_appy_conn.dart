@@ -44,6 +44,14 @@ class _AddModuleAppyConnPageState extends State<AddModuleAppyConnPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    //모듈에 맞는 이미지 넣기
+                    Image.asset(
+                      "assets/images/module_TV.png",
+                      height: 200,
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
                     const Text(
                       "모듈이 등록되었습니다!",
                       style: TextStyle(

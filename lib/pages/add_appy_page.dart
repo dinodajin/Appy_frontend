@@ -75,8 +75,9 @@ class _AddAppyPageState extends State<AddAppyPage> {
                             mainAxisAlignment:
                                 MainAxisAlignment.center, // 세로 가운데 정렬
                             children: const [
+                              
                               Text(
-                                "장착된 Appy를 확인할 수 없습니다",
+                                "에피를 찾는 중입니다",
                                 style: TextStyle(
                                   color: AppColors.textHigh,
                                   fontSize: TextSize.medium,
@@ -107,7 +108,8 @@ class _AddAppyPageState extends State<AddAppyPage> {
                       }
                     : null, // 버튼 비활성화 (_showImage가 false일 때)
                 child: BuildButton(
-                  "Appy 등록하러 가기",
+                  _showImage ?
+                  "Appy 등록하러 가기" : "Appy를 찾는 중입니다...",
                   _showImage
                       ? AppColors.accent // 활성화 색상 (_showImage가 true일 때)
                       : AppColors
