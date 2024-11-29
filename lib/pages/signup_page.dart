@@ -68,7 +68,7 @@ class _SignUpPageState extends State<SignUpPage> {
     if (!_isEmailChecked) {
       showCustomErrorDialog(
         context: context,
-        message: "이메일이 중복 확인을 완료해주세요.",
+        message: "이메일 중복 확인을 완료해주세요.",
         buttonText: "확인",
         onConfirm: () {
           Navigator.of(context).pop();
