@@ -26,7 +26,7 @@ class _AddModulePageState extends State<AddModulePage> {
   }
 
   Future<void> _fetchLastModuleId() async {
-    final url = Uri.parse("http://192.168.0.54:8081/api/modules/last-id");
+    final url = Uri.parse("http://43.203.220.44/:8081/api/modules/last-id");
 
     try {
       final response = await http.get(url);
@@ -62,7 +62,7 @@ class _AddModulePageState extends State<AddModulePage> {
   }
 
   Future<void> _sendModuleData(String userId) async {
-    final url = Uri.parse("http://192.168.0.54:8081/api/modules/save");
+    final url = Uri.parse("http://43.203.220.44/:8081/api/modules/save");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "MODULE_ID": moduleId,
