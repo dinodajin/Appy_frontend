@@ -5,7 +5,6 @@ import 'package:appy_app/pages/login_page.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -21,9 +20,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final _ageController = TextEditingController();
   String? _gender;
   bool _isSignUpButtonActive = false;
-  bool _isEmailChecked = true;
+  bool _isEmailChecked = false;
   bool _isEmailAvailable = true;
-  // 이메일 형식 검사 함수 추가
+
+  // 이메일 형식 검사 함수
   bool isValidEmail(String email) {
     return email.contains('@') && email.contains('.');
   }
@@ -43,7 +43,8 @@ class _SignUpPageState extends State<SignUpPage> {
           _passwordController.text.isNotEmpty &&
           _nameController.text.isNotEmpty &&
           _ageController.text.isNotEmpty &&
-          _gender != null;
+          _gender != null &&
+          (!_isEmailChecked || _isEmailAvailable);
     });
   }
 
@@ -76,8 +77,7 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    // API 호출
-    final url = Uri.parse("http://192.168.0.54:8081/api/users"); // 서버 주소와 엔드포인트
+    final url = Uri.parse("http://192.168.0.54:8081/api/users");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "USER_ID": email,
@@ -148,9 +148,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  Container(
-                    width: 5,
-                  ),
+                  Container(width: 5),
                 ],
               ),
               AnimatedContainer(
@@ -164,7 +162,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: _isEmailAvailable ? AppColors.accent.withOpacity(0.16) : AppColors.caution.withOpacity(0.16),
+                        fillColor: _isEmailAvailable
+                            ? AppColors.accent.withOpacity(0.16)
+                            : AppColors.caution.withOpacity(0.16),
                         hintText: '이메일을 입력하세요',
                         hintStyle: const TextStyle(color: Colors.black),
                         contentPadding: const EdgeInsets.symmetric(
@@ -174,66 +174,104 @@ class _SignUpPageState extends State<SignUpPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: AppColors.accent, width: 2.0),
+                          borderSide:
+                              const BorderSide(color: AppColors.accent, width: 2.0),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  TextButton(
-                    onPressed: () async {
-                      final email = _emailController.text.trim();
-                      if (isValidEmail(email)) {
-                        print("유효한 이메일 형식입니다.");
-                        // TODO: 이메일 중복 확인 로직 추가
-                        // - email 서버로 전송하여 인증
-                        // - 성공 시 응답 데이터 처리 (예: 토큰 저장)
-                        // - 실패 시 에러 메시지 표시
-                        if (1 < 0) {
+                 TextButton(
+                  onPressed: () async {
+                    final email = _emailController.text.trim();
+
+                    if (isValidEmail(email)) {
+                      print("유효한 이메일 형식입니다.");
+
+                      final checkUrl = Uri.parse(
+                          "http://192.168.0.54:8081/api/users/check/$email");
+                      final headers = {"Content-Type": "application/json"};
+
+                      try {
+                        final response = await http.get(checkUrl, headers: headers);
+
+                        if (response.statusCode == 200) {
                           setState(() {
-                          _isEmailAvailable = true;
+                            _isEmailChecked = true;
+                            _isEmailAvailable = true;
                           });
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            duration: Duration(seconds: 1),
-                            backgroundColor: AppColors.primary,
-                            content: Center(
-                                child: Text("사용 가능한 이메일입니다.",
-                                    style: TextStyle(
-                                      color: AppColors.textHigh,
-                                      fontSize: TextSize.small,
-                                      fontWeight: FontWeight.w600,
-                                    ))),
-                          ));
+                          _updateSignUpButtonState(); // 즉시 버튼 상태 업데이트
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              duration: Duration(seconds: 1),
+                              backgroundColor: AppColors.primary,
+                              content: Center(
+                                child: Text(
+                                  "사용 가능한 이메일입니다.",
+                                  style: TextStyle(
+                                    color: AppColors.textHigh,
+                                    fontSize: TextSize.small,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else if (response.statusCode == 400) {
+                          setState(() {
+                            _isEmailChecked = true;
+                            _isEmailAvailable = false;
+                          });
+                          _updateSignUpButtonState(); // 즉시 버튼 상태 업데이트
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              duration: Duration(seconds: 1),
+                              backgroundColor: AppColors.primary,
+                              content: Center(
+                                child: Text(
+                                  "이미 등록된 이메일입니다.",
+                                  style: TextStyle(
+                                    color: AppColors.textHigh,
+                                    fontSize: TextSize.small,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
                         } else {
-                          setState(() {
-                          _isEmailAvailable = false;
-                          });
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            duration: Duration(seconds: 1),
-                            backgroundColor: AppColors.primary,
-                            content: Center(
-                                child: Text("사용 불가능한 이메일입니다.",
-                                    style: TextStyle(
-                                      color: AppColors.textHigh,
-                                      fontSize: TextSize.small,
-                                      fontWeight: FontWeight.w600,
-                                    ))),
-                          ));                          
+                          showCustomErrorDialog(
+                            context: context,
+                            message: "이메일 중복 확인 중 오류가 발생했습니다.",
+                            buttonText: "확인",
+                            onConfirm: () {
+                              Navigator.of(context).pop();
+                            },
+                          );
                         }
-                      } else {
+                      } catch (e) {
+                        print("네트워크 에러: $e");
                         showCustomErrorDialog(
                           context: context,
-                          message: "이메일 형식에 맞게 입력해주세요",
+                          message: "서버와 연결할 수 없습니다.",
                           buttonText: "확인",
                           onConfirm: () {
                             Navigator.of(context).pop();
                           },
                         );
                       }
-                    },
+                    } else {
+                      showCustomErrorDialog(
+                        context: context,
+                        message: "이메일 형식에 맞게 입력해주세요.",
+                        buttonText: "확인",
+                        onConfirm: () {
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    }
+                  },
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12.0, vertical: 14.0),
@@ -265,7 +303,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: AppColors.accent, width: 2.0),
+                    borderSide:
+                        const BorderSide(color: AppColors.accent, width: 2.0),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
@@ -285,7 +324,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: AppColors.accent, width: 2.0),
+                    borderSide:
+                        const BorderSide(color: AppColors.accent, width: 2.0),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
@@ -312,7 +352,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: AppColors.accent, width: 2.0),
+                          borderSide:
+                              const BorderSide(color: AppColors.accent, width: 2.0),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
@@ -347,7 +388,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               const SizedBox(height: 16),
               OutlinedButton(
-                onPressed: _isSignUpButtonActive ? _handleSignUp : null,
+                onPressed: _isSignUpButtonActive && _isEmailAvailable ? _handleSignUp : null,
                 style: OutlinedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -359,11 +400,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         : AppColors.buttonDisabled,
                   ),
                   foregroundColor: _isSignUpButtonActive
-                      ? AppColors.textWhite // 활성화된 텍스트 색상
-                      : AppColors.textWhite, // 비활성화된 텍스트 색상
+                      ? AppColors.textWhite
+                      : AppColors.textWhite,
                   backgroundColor: _isSignUpButtonActive
-                      ? AppColors.accent // 활성화된 배경 색상
-                      : AppColors.buttonDisabled, // 비활성화된 배경 색상
+                      ? AppColors.accent
+                      : AppColors.buttonDisabled,
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: TextSize.small,
@@ -375,7 +416,7 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                  // 로그인 페이지로 이동
+                   // 로그인 페이지로 이동
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -389,20 +430,22 @@ class _SignUpPageState extends State<SignUpPage> {
                     Text(
                       "계정이 있으신가요? ",
                       style: TextStyle(
-                          color: AppColors.textMedium,
-                          fontSize: TextSize.small,
-                          fontWeight: FontWeight.w500),
+                        color: AppColors.textMedium,
+                        fontSize: TextSize.small,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     Text(
                       "로그인",
                       style: TextStyle(
-                          color: AppColors.textHigh,
-                          fontSize: TextSize.small,
-                          fontWeight: FontWeight.w700),
+                        color: AppColors.textHigh,
+                        fontSize: TextSize.small,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
