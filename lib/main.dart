@@ -34,6 +34,7 @@ class AppyApp extends StatelessWidget {
           ),
         ),
         home: const OnboardingPage(),
+        // home: const AddModulePage(),
       ),
     );
   }
