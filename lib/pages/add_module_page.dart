@@ -1,10 +1,12 @@
-import 'package:appy_app/pages/add_module_appy_conn.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:appy_app/providers/user_provider.dart';
+import 'package:appy_app/pages/add_module_appy_conn.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/widgets/qr_code_scanner.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class AddModulePage extends StatefulWidget {
   const AddModulePage({super.key});
@@ -14,11 +16,52 @@ class AddModulePage extends StatefulWidget {
 }
 
 class _AddModulePageState extends State<AddModulePage> {
-  final String userId = "test1@gmail.com"; // 임의 USER_ID
-  final String moduleId = "M001"; // 임의 MODULE_ID
-  final String type = "TV"; // 임의 TYPE
+  String moduleId = ""; // 동적으로 생성된 MODULE_ID
+  final String type = "TV"; // 고정 TYPE
 
-  Future<void> _sendModuleData() async {
+  @override
+  void initState() {
+    super.initState();
+    _fetchLastModuleId(); // 초기화 시 MODULE_ID 생성
+  }
+
+  Future<void> _fetchLastModuleId() async {
+    final url = Uri.parse("http://192.168.0.54:8081/api/modules/last-id");
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final lastId = response.body.trim(); // 서버에서 반환된 마지막 MODULE_ID
+        setState(() {
+          if (lastId.isNotEmpty) {
+            // 새로운 MODULE_ID 생성 (e.g., M_001 -> M_002)
+            final parts = lastId.split('_');
+            if (parts.length == 2) {
+              final prefix = parts[0]; // "M"
+              final number = int.tryParse(parts[1]) ?? 0;
+              moduleId = "${prefix}_${(number + 1).toString().padLeft(3, '0')}";
+            } else {
+              moduleId = "M_001"; // 기본값
+            }
+          } else {
+            moduleId = "M_001"; // 기본값
+          }
+        });
+      } else {
+        _showErrorDialog("MODULE_ID를 가져오는데 실패했습니다. 기본값 M_001을 사용합니다.");
+        setState(() {
+          moduleId = "M_001";
+        });
+      }
+    } catch (e) {
+      _showErrorDialog("네트워크 오류 발생: $e. 기본값 M_001을 사용합니다.");
+      setState(() {
+        moduleId = "M_001";
+      });
+    }
+  }
+
+  Future<void> _sendModuleData(String userId) async {
     final url = Uri.parse("http://192.168.0.54:8081/api/modules/save");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
@@ -43,7 +86,6 @@ class _AddModulePageState extends State<AddModulePage> {
     }
   }
 
-
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -64,6 +106,8 @@ class _AddModulePageState extends State<AddModulePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = Provider.of<UserProvider>(context).userId;
+
     return Scaffold(
       appBar: BuildSettingAppBar(context, "모듈 등록"),
       body: SafeArea(
@@ -101,7 +145,6 @@ class _AddModulePageState extends State<AddModulePage> {
                 ),
                 child: const Text('QR코드 스캔'),
                 onPressed: () async {
-                  // QR 코드 스캐너 페이지 이동
                   final scannedData = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -109,15 +152,15 @@ class _AddModulePageState extends State<AddModulePage> {
                     ),
                   );
 
-                  // QR 코드 스캔 결과 출력
                   print("스캔된 데이터: $scannedData");
 
-                  // QR 코드 데이터와 관계없이 고정된 값 사용
-                  const moduleId = "M001"; // 임의 값 설정
-                  const type = "TV"; // 임의 값 설정
+                  if (moduleId.isEmpty) {
+                    _showErrorDialog("MODULE_ID를 생성하지 못했습니다.");
+                    return;
+                  }
 
-                  // DB 저장
-                  await _sendModuleData();
+                  // DB에 데이터 저장
+                  await _sendModuleData(userId);
                 },
               ),
             ],
