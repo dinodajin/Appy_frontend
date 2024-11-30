@@ -29,7 +29,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     // 화면 크기 비례로 이미지 크기 조정
-    final imageWidth = (MediaQuery.of(context).size.width) * 0.8; // 화면 너비의 80%
+    final imageWidth = (MediaQuery.of(context).size.width) * 0.7; // 화면 너비의 80%
 
     // 스플래쉬 화면
     if (_showSplash) {
@@ -47,7 +47,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   color: AppColors.textHigh,
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 20),
               Image.asset(
                 width: imageWidth,
                 'assets/images/splash_logo.png', // 로고 이미지 경로
@@ -75,7 +75,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           title: 'Appy와 대화하며\n일기장을 수집해보세요',
           iconPath: 'assets/images/onboarding_2.png',
           bodyImagePath: 'assets/images/onboarding_body_2.png',
-          bodyHeight: 180,
+          bodyHeight: 230,
         ),
         createPageViewModel(
           context,

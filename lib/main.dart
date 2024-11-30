@@ -3,6 +3,7 @@ import 'package:appy_app/pages/add_module_appy_conn.dart';
 import 'package:appy_app/pages/add_module_page.dart';
 import 'package:appy_app/pages/chat_page.dart';
 import 'package:appy_app/pages/home_page.dart';
+import 'package:appy_app/pages/module_map_page.dart';
 import 'package:appy_app/pages/onboarding_page.dart';
 import 'package:appy_app/pages/start_page.dart';
 import 'package:appy_app/providers/user_provider.dart'; // UserProvider 추가
@@ -21,7 +22,8 @@ class AppyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()), // UserProvider 등록
+        ChangeNotifierProvider(
+            create: (_) => UserProvider()), // UserProvider 등록
       ],
       child: MaterialApp(
         theme: ThemeData(
@@ -34,7 +36,7 @@ class AppyApp extends StatelessWidget {
           ),
         ),
         home: const OnboardingPage(),
-        // home: const AddModulePage(),
+        // home: HomePage(),
       ),
     );
   }

@@ -4,14 +4,15 @@ import 'package:appy_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
 class GiftPage extends StatefulWidget {
-  final int characterId = 1; // 캐릭터 ID 전달
-  final int characterLevel = 5; // 해당 캐릭터의 레벨
-  const GiftPage({super.key});
-  // const GiftPage({
-  //   super.key
-  //   // this.characterId = 1, // 기본값 레비
-  //   // this.characterLevel = 5, // 테스트 레벨
-  // });
+  final int characterId; // 캐릭터 ID 전달
+  final int characterLevel; // 해당 캐릭터의 레벨
+
+  // 생성자를 통해 변수 받기
+  const GiftPage({
+    super.key,
+    required this.characterId, // 필수 매개변수로 설정
+    this.characterLevel = 1, // 기본값 설정
+  });
 
   @override
   State<GiftPage> createState() => _GiftPageState();
@@ -24,9 +25,9 @@ class _GiftPageState extends State<GiftPage> {
       case 1:
         return "레비의 선물함";
       case 2:
-        return "누비의 선물함";
+        return "바비의 선물함";
       case 3:
-        return "밥이의 선물함";
+        return "누비의 선물함";
       default:
         return "캐릭터의 선물함";
     }
@@ -50,7 +51,10 @@ class _GiftPageState extends State<GiftPage> {
           padding: const EdgeInsets.only(left: 42.0, right: 42.0, bottom: 20.0),
           child: Column(
             children: [
-              Expanded(child: Container()), // 상단 여백
+              // Expanded(child: Container()), // 상단 여백
+              Container(
+                height: 60,
+              ), // 상단 여백
               GridView.builder(
                 shrinkWrap: true, // GridView 크기를 필요한 만큼만 설정
                 padding: const EdgeInsets.all(10.0),

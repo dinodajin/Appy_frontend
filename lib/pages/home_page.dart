@@ -153,61 +153,61 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             },
           ),
 
-          //2번째 에피
-          AnimatedBuilder(
-            animation: _controllers[1],
-            builder: (context, child) {
-              return Positioned(
-                top: _topAnimations[1].value,
-                left: _leftAnimations[1].value,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppyPage(
-                          appyID: "ID002",
-                          appyType: 1,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_bobby.png",
-                    height: ImageSize.appySmall,
-                  ),
-                ),
-              );
-            },
-          ),
+          // //2번째 에피
+          // AnimatedBuilder(
+          //   animation: _controllers[1],
+          //   builder: (context, child) {
+          //     return Positioned(
+          //       top: _topAnimations[1].value,
+          //       left: _leftAnimations[1].value,
+          //       child: GestureDetector(
+          //         onTap: () {
+          //           Navigator.push(
+          //             context,
+          //             MaterialPageRoute(
+          //               builder: (context) => const AppyPage(
+          //                 appyID: "ID002",
+          //                 appyType: 1,
+          //               ),
+          //             ),
+          //           );
+          //         },
+          //         child: Image.asset(
+          //           "assets/images/appy_bobby.png",
+          //           height: ImageSize.appySmall,
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // ),
 
-          //2번째 에피
-          AnimatedBuilder(
-            animation: _controllers[2],
-            builder: (context, child) {
-              return Positioned(
-                top: _topAnimations[2].value,
-                left: _leftAnimations[2].value,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppyPage(
-                          appyID: "ID003",
-                          appyType: 2,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_nubi.png",
-                    height: ImageSize.appySmall,
-                  ),
-                ),
-              );
-            },
-          ),
+          // //3번째 에피
+          // AnimatedBuilder(
+          //   animation: _controllers[2],
+          //   builder: (context, child) {
+          //     return Positioned(
+          //       top: _topAnimations[2].value,
+          //       left: _leftAnimations[2].value,
+          //       child: GestureDetector(
+          //         onTap: () {
+          //           Navigator.push(
+          //             context,
+          //             MaterialPageRoute(
+          //               builder: (context) => const AppyPage(
+          //                 appyID: "ID003",
+          //                 appyType: 2,
+          //               ),
+          //             ),
+          //           );
+          //         },
+          //         child: Image.asset(
+          //           "assets/images/appy_nubi.png",
+          //           height: ImageSize.appySmall,
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // ),
         ],
       ),
     );

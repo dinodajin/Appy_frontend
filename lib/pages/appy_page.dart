@@ -27,15 +27,15 @@ class AppyPage extends StatefulWidget {
 class _AppyPageState extends State<AppyPage> {
   late String randomText;
   bool _isAnimating = true; // 애니메이션 상태 플래그
-  bool _isNewChat = true;
+  bool _isNewChat = false; // 새로운 채팅
   bool _isNewGift = false;
   String? lastText; // 랜덤 텍스트 선택 중복 방지용
 
   // 사탕 개수 초기화
-  int currentCandyNum = 5;
+  int currentCandyNum = 0;
 
   // 프로그레스 바 초기화
-  int currentProgressNum = 5; // 현재 진행 상태
+  int currentProgressNum = 0; // 현재 진행 상태
   final double maxSteps = 7; // 최대 단계 수
 
   @override
@@ -44,7 +44,7 @@ class _AppyPageState extends State<AppyPage> {
     String appyID = widget.appyID;
     int appyType = widget.appyType;
 
-    _getRandomText(characterTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
+    _getRandomText(firstMeetTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
   }
 
   // 랜덤 텍스트 선택
@@ -502,7 +502,7 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const GiftPage()));
+                                                GiftPage(characterId: appyIDs.indexOf(widget.appyID)+1,)));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.all(3.0),
