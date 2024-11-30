@@ -49,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
     final String password = _passwordController.text.trim();
 
     final loginUrl = Uri.parse("http://43.203.220.44:8082/api/users/login");
+    final checkRfidsUrl = Uri.parse("http://43.203.220.44:8082/api/character/user-rfids");
     final checkModuleUrl =
         Uri.parse("http://43.203.220.44:8082/api/modules/check/$email");
     final headers = {"Content-Type": "application/json"};
@@ -79,13 +80,33 @@ class _LoginPageState extends State<LoginPage> {
             final bool hasModule = moduleData['hasModule'] ?? false;
 
             if (hasModule) {
-              // 모듈이 있으면 AddAppyPage로 이동
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddAppyPage(),
-                ),
+               // Appy 확인 API 호출
+              final checkRfidsResponse = await http.get(
+                checkRfidsUrl.replace(queryParameters: {'userId': email}),
+                headers: headers,
               );
+
+              if (checkRfidsResponse.statusCode == 200) {
+                final List<dynamic> rfidsWithDetails = jsonDecode(utf8.decode(checkRfidsResponse.bodyBytes));
+
+                if (rfidsWithDetails.isNotEmpty) {
+                  // RFID가 등록되어 있으면 HomePage로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                  );
+                } else {
+                  // RFID가 없으면 AddAppyPage로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddAppyPage(),
+                    ),
+                  );
+                }
+              }
             } else {
               // 모듈이 없으면 AddModulePage로 이동
               Navigator.push(
