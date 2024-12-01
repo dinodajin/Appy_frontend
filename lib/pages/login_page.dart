@@ -48,10 +48,10 @@ class _LoginPageState extends State<LoginPage> {
   final String email = _emailController.text.trim();
   final String password = _passwordController.text.trim();
 
-  final loginUrl = Uri.parse("http://43.203.220.44:8082/api/users/login");
+  final loginUrl = Uri.parse("http://3.36.103.205:8083/api/users/login");
   final checkModuleUrl =
-        Uri.parse("http://43.203.220.44:8082/api/modules/check/$email");
-  final checkRfidsUrl = Uri.parse("http://43.203.220.44:8082/api/module-connect/user-rfids");
+        Uri.parse("http://3.36.103.205:8083/api/modules/check/$email");
+  final checkRfidsUrl = Uri.parse("http://3.36.103.205:8083/api/module-connect/user-rfids");
   final headers = {"Content-Type": "application/json"};
   final body = jsonEncode({
     "USER_ID": email,
