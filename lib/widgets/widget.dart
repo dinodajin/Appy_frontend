@@ -74,6 +74,9 @@ AppBar BuildAppBar(BuildContext context) {
   );
 }
 
+
+
+
 AppBar BuildSettingAppBar(BuildContext context, String title) {
   return AppBar(
     backgroundColor: AppColors.primary,

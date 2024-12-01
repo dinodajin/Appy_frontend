@@ -18,7 +18,7 @@ final List<String> appyImages = [
   "appy_nubi.png"
 ];
 
-final List<int> appyLevels = [1, 3, 5];
+final List<int> appyLevels = [2, 3, 5];
 
 // 일반 대사 데이터
 final List<List<String>> characterTexts = [

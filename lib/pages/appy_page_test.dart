@@ -12,40 +12,84 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
 // home에서 에피 하나를 눌렀을때 에피와 상호작용할 수 있는 페이지
-class AppyPage extends StatefulWidget {
+class AppyPageTest extends StatefulWidget {
   final String appyID;
   final int appyType; // Appy의 ID
-  const AppyPage({
+  const AppyPageTest({
     required this.appyID, //이름 초기화
     required this.appyType, // Appy의 ID
     super.key,
   });
 
   @override
-  State<AppyPage> createState() => _AppyPageState();
+  State<AppyPageTest> createState() => _AppyPageTestState();
 }
 
-class _AppyPageState extends State<AppyPage> {
+class _AppyPageTestState extends State<AppyPageTest> {
   late String randomText;
   bool _isAnimating = true; // 애니메이션 상태 플래그
   bool _isNewChat = false; // 새로운 채팅
   bool _isNewGift = false;
   String? lastText; // 랜덤 텍스트 선택 중복 방지용
 
-  // 사탕 개수 초기화
-  int currentCandyNum = 0;
+  // 각 appyID에 따른 사탕 개수 관리
+  final Map<String, int> candyNumByAppyID = {
+    "ID001": 3, // 예: ID001 캐릭터의 초기 사탕 개수
+    "ID002": 5, // 예: ID002 캐릭터의 초기 사탕 개수
+    "ID003": 2, // 예: ID003 캐릭터의 초기 사탕 개수
+  };
 
-  // 프로그레스 바 초기화
-  int currentProgressNum = 0; // 현재 진행 상태
+  // 현재 appyID의 사탕 개수
+  int get currentCandyNum => candyNumByAppyID[widget.appyID] ?? 0;
+
+  // 현재 appyID의 사탕 개수 설정
+  set currentCandyNum(int value) {
+    candyNumByAppyID[widget.appyID] = value;
+  }
+
+
+  // 각 appyID에 따른 진행 상태 관리
+  final Map<String, int> progressNumByAppyID = {
+    "ID001": 2,
+    "ID002": 4,
+    "ID003": 6,
+  };
+
   final double maxSteps = 7; // 최대 단계 수
+
+  // 현재 appyID의 진행 상태
+  int get currentProgressNum => progressNumByAppyID[widget.appyID] ?? 0;
+
+  // 현재 appyID의 진행 상태 설정
+  set currentProgressNum(int value) {
+    progressNumByAppyID[widget.appyID] = value;
+  }
+
+  // 각 appyID에 따른 선물함 레벨 관리
+  final Map<String, int> levelByAppyID = {
+    "ID001": 7,
+    "ID002": 3,
+    "ID003": 3,
+  };
+
+ // 현재 appyID의 진행 상태
+  int get currentLevel => levelByAppyID[widget.appyID] ?? 0;
+
+  // 현재 appyID의 진행 상태 설정
+  set cuurrentLevel(int value) {
+    levelByAppyID[widget.appyID] = value;
+  }
+
+
 
   @override
   void initState() {
     super.initState();
     String appyID = widget.appyID;
     int appyType = widget.appyType;
+    int currentProgressNum = appyLevels[widget.appyType];
 
-    _getRandomText(firstMeetTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
+    _getRandomText(characterTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
   }
 
   // 랜덤 텍스트 선택
@@ -196,7 +240,7 @@ class _AppyPageState extends State<AppyPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => AppyPage(
+                                          builder: (context) => AppyPageTest(
                                             appyID: appyIDs[preIndex],
                                             appyType: appyTypes[preIndex],
                                           ),
@@ -227,7 +271,7 @@ class _AppyPageState extends State<AppyPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => AppyPage(
+                                          builder: (context) => AppyPageTest(
                                             appyID: appyIDs[nextIndex],
                                             appyType: appyTypes[nextIndex],
                                           ),
@@ -507,7 +551,6 @@ class _AppyPageState extends State<AppyPage> {
                                   width: 5,
                                 ),
                                 //선물함 버튼
-
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
@@ -520,6 +563,7 @@ class _AppyPageState extends State<AppyPage> {
                                                   characterId: appyIDs.indexOf(
                                                           widget.appyID) +
                                                       1,
+                                                      characterLevel: currentLevel,
                                                 )));
                                   },
                                   style: ElevatedButton.styleFrom(

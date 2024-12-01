@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:appy_app/pages/appy_page.dart';
+import 'package:appy_app/pages/appy_page_test.dart';
 import 'package:appy_app/pages/home_page.dart';
 import 'package:appy_app/pages/home_page_test.dart';
 import 'package:appy_app/pages/module_map_page.dart';
@@ -9,16 +10,16 @@ import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 
 //에피 모여있는 페이지
-class HomePage extends StatefulWidget {
-  const HomePage({
+class HomePageTest extends StatefulWidget {
+  const HomePageTest({
     super.key,
   });
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePageTest> createState() => _HomePageTestState();
 }
 
-class _HomePageState extends State<HomePage>
+class _HomePageTestState extends State<HomePageTest>
     with TickerProviderStateMixin {
   final List<AnimationController> _controllers = [];
   final List<Animation<double>> _topAnimations = [];
@@ -164,7 +165,7 @@ class _HomePageState extends State<HomePage>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AppyPage(
+                        builder: (context) => const AppyPageTest(
                           appyID: "ID001",
                           appyType: 0,
                         ),
@@ -180,61 +181,61 @@ class _HomePageState extends State<HomePage>
             },
           ),
 
-//           //2번째 에피
-//           AnimatedBuilder(
-//             animation: _controllers[1],
-//             builder: (context, child) {
-//               return Positioned(
-//                 top: _topAnimations[1].value,
-//                 left: _leftAnimations[1].value,
-//                 child: GestureDetector(
-//                   onTap: () {
-//                     Navigator.push(
-//                       context,
-//                       MaterialPageRoute(
-//                         builder: (context) => const AppyPage(
-//                           appyID: "ID002",
-//                           appyType: 1,
-//                         ),
-//                       ),
-//                     );
-//                   },
-//                   child: Image.asset(
-//                     "assets/images/appy_bobby.png",
-//                     height: ImageSize.appySmall,
-//                   ),
-//                 ),
-//               );
-//             },
-//           ),
+          //2번째 에피
+          AnimatedBuilder(
+            animation: _controllers[1],
+            builder: (context, child) {
+              return Positioned(
+                top: _topAnimations[1].value,
+                left: _leftAnimations[1].value,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AppyPageTest(
+                          appyID: "ID002",
+                          appyType: 1,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Image.asset(
+                    "assets/images/appy_bobby.png",
+                    height: ImageSize.appySmall,
+                  ),
+                ),
+              );
+            },
+          ),
 
-//           //3번째 에피
-//           AnimatedBuilder(
-//             animation: _controllers[2],
-//             builder: (context, child) {
-//               return Positioned(
-//                 top: _topAnimations[2].value,
-//                 left: _leftAnimations[2].value,
-//                 child: GestureDetector(
-//                   onTap: () {
-//                     Navigator.push(
-//                       context,
-//                       MaterialPageRoute(
-//                         builder: (context) => const AppyPage(
-//                           appyID: "ID003",
-//                           appyType: 2,
-//                         ),
-//                       ),
-//                     );
-//                   },
-//                   child: Image.asset(
-//                     "assets/images/appy_nubi.png",
-//                     height: ImageSize.appySmall,
-//                   ),
-//                 ),
-//               );
-//             },
-//           ),
+          //3번째 에피
+          AnimatedBuilder(
+            animation: _controllers[2],
+            builder: (context, child) {
+              return Positioned(
+                top: _topAnimations[2].value,
+                left: _leftAnimations[2].value,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AppyPageTest(
+                          appyID: "ID003",
+                          appyType: 2,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Image.asset(
+                    "assets/images/appy_nubi.png",
+                    height: ImageSize.appySmall,
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -260,7 +261,7 @@ AppBar _buildHomeAppBar(BuildContext context) {
       IconButton(
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const HomePageTest()));
+                MaterialPageRoute(builder: (context) => const HomePage()));
           },
           icon: const Icon(
             Icons.settings,
