@@ -45,29 +45,29 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLogin() async {
-  final String email = _emailController.text.trim();
-  final String password = _passwordController.text.trim();
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
 
-  final loginUrl = Uri.parse("http://43.203.220.44:8082/api/users/login");
-  final checkModuleUrl =
+    final loginUrl = Uri.parse("http://43.203.220.44:8082/api/users/login");
+    final checkRfidsUrl = Uri.parse("http://43.203.220.44:8082/api/character/user-rfids");
+    final checkModuleUrl =
         Uri.parse("http://43.203.220.44:8082/api/modules/check/$email");
-  final checkRfidsUrl = Uri.parse("http://43.203.220.44:8082/api/module-connect/user-rfids");
-  final headers = {"Content-Type": "application/json"};
-  final body = jsonEncode({
-    "USER_ID": email,
-    "USER_PW": password,
-  });
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      "USER_ID": email,
+      "USER_PW": password,
+    });
 
-  try {
-    // 로그인 요청
-    final loginResponse =
+    try {
+      // 로그인 요청
+      final loginResponse =
           await http.post(loginUrl, headers: headers, body: body);
 
-    if (loginResponse.statusCode == 200) {
-      // 로그인 성공
+      if (loginResponse.statusCode == 200) {
+        // 로그인 성공
         print("로그인 성공: ${loginResponse.body}");
 
-      // UserProvider를 사용해 로그인된 사용자 ID 저장
+        // UserProvider를 사용해 로그인된 사용자 ID 저장
         Provider.of<UserProvider>(context, listen: false).setUserId(email);
 
         // 모듈 확인 요청
@@ -78,6 +78,7 @@ class _LoginPageState extends State<LoginPage> {
             final moduleData =
                 jsonDecode(utf8.decode(moduleResponse.bodyBytes));
             final bool hasModule = moduleData['hasModule'] ?? false;
+
             if (hasModule) {
                // Appy 확인 API 호출
               final checkRfidsResponse = await http.get(
@@ -86,11 +87,10 @@ class _LoginPageState extends State<LoginPage> {
               );
 
               if (checkRfidsResponse.statusCode == 200) {
-                final rfidsData = jsonDecode(utf8.decode(checkRfidsResponse.bodyBytes));
-                final bool hasRfids = rfidsData['hasRfids'] ?? false;
+                final List<dynamic> rfidsWithDetails = jsonDecode(utf8.decode(checkRfidsResponse.bodyBytes));
 
-                if (hasRfids) {
-                  // RFID가 있으면 HomePage로 이동
+                if (rfidsWithDetails.isNotEmpty) {
+                  // RFID가 등록되어 있으면 HomePage로 이동
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                 }
               }
             } else {
-                // 모듈이 없으면 AddModulePage로 이동
+              // 모듈이 없으면 AddModulePage로 이동
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -128,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
               },
             );
           }
-           } else {
+        } else {
           // 모듈 확인 실패 (예: 404, 500)
           print("모듈 확인 실패: ${moduleResponse.statusCode}");
           showCustomErrorDialog(
@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.of(context).pop();
           },
         );
-         } else {
+      } else {
         // 기타 에러 처리
         showCustomErrorDialog(
           context: context,
