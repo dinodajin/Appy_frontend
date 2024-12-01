@@ -21,6 +21,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   int characterType = 0; // 기본 캐릭터 타입
 
   Future<void> _registerAppy(String userId) async {
+  // final checkConnectUrl = Uri.parse("http://43.203.220.44:8082/api/module-connect/save");
     final url = Uri.parse("http://43.203.220.44:8082/api/character/register");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
