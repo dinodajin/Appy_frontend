@@ -1,21 +1,21 @@
-List<String> RFIDS = ["02719612895", "195307716957", "21154242166177"];
+List<String> RFIDS = ["02719612895", "195307716957", "1761222116188"];
 List<int> appyTypes = [0, 1, 2];
 
 // 캐릭터 이름 (영문)
-final List<String> appyNames = ["levi", "bobby", "nubi"];
+final List<String> appyNames = ["nubi", "bobby", "levi"];
 // 캐릭터 이름 (한글)
-final List<String> appyNamesKo = ["레비", "바비", "누비"];
+final List<String> appyNamesKo = ["누비", "바비", "레비"];
 // 캐릭터 이미지 파일명
 final List<String> appySideImages = [
-  "appy_levi_side.png",
-  "appy_bobby_side.png",
-  "appy_nubi_side.png"
+  "appy_nubi_side.png", 
+  "appy_bobby_side.png", 
+  "appy_levi_side.png"
 ];
 
 final List<String> appyImages = [
-  "appy_levi.png",
-  "appy_bobby.png",
-  "appy_nubi.png"
+  "appy_nubi.png", 
+  "appy_bobby.png", 
+  "appy_levi.png"
 ];
 
 // 일반 대사 데이터
