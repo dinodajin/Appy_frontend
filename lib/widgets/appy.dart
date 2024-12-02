@@ -1,4 +1,4 @@
-List<String> appyIDs = ["ID001", "ID002", "ID003"];
+List<String> RFIDS = ["02719612895", "195307716957", "21154242166177"];
 List<int> appyTypes = [0, 1, 2];
 
 // 캐릭터 이름 (영문)

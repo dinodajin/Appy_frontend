@@ -190,13 +190,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 이전 인덱스가 있는 경우
                                     int preIndex =
-                                        appyIDs.indexOf(widget.appyID) - 1;
+                                        RFIDS.indexOf(widget.appyID) - 1;
                                     if (preIndex >= 0) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: appyIDs[preIndex],
+                                            appyID: RFIDS[preIndex],
                                             appyType: appyTypes[preIndex],
                                           ),
                                         ),
@@ -221,13 +221,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 다음 인덱스가 있는 경우
                                     int nextIndex =
-                                        appyIDs.indexOf(widget.appyID) + 1;
-                                    if (nextIndex < appyIDs.length) {
+                                        RFIDS.indexOf(widget.appyID) + 1;
+                                    if (nextIndex < RFIDS.length) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: appyIDs[nextIndex],
+                                            appyID: RFIDS[nextIndex],
                                             appyType: appyTypes[nextIndex],
                                           ),
                                         ),
