@@ -45,117 +45,120 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLogin() async {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
+  // 키보드 내리기
+  FocusScope.of(context).unfocus();
 
-    final loginUrl = Uri.parse("http://43.203.220.44:8082/api/users/login");
-    final checkModuleUrl =
-        Uri.parse("http://43.203.220.44:8082/api/modules/check/$email");
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "USER_ID": email,
-      "USER_PW": password,
-    });
+  final String email = _emailController.text.trim();
+  final String password = _passwordController.text.trim();
 
-    try {
-      // 로그인 요청
-      final loginResponse =
-          await http.post(loginUrl, headers: headers, body: body);
+  final loginUrl = Uri.parse("http://192.168.0.54:8083/api/users/login");
+  final moduleCheckUrl = Uri.parse("http://192.168.0.54:8083/api/modules/check/$email");
+  final appyCheckUrl = Uri.parse("http://192.168.0.54:8083/api/character/user-rfids?userId=$email");
+  final headers = {"Content-Type": "application/json"};
+  final body = jsonEncode({
+    "USER_ID": email,
+    "USER_PW": password,
+  });
 
-      if (loginResponse.statusCode == 200) {
-        // 로그인 성공
-        print("로그인 성공: ${loginResponse.body}");
+  try {
+    // 로그인 요청
+    final loginResponse = await http.post(loginUrl, headers: headers, body: body);
 
-        // UserProvider를 사용해 로그인된 사용자 ID 저장
-        Provider.of<UserProvider>(context, listen: false).setUserId(email);
+    if (loginResponse.statusCode == 200) {
+      // 로그인 성공
+      print("로그인 성공: ${loginResponse.body}");
+      // UserProvider를 사용해 로그인된 사용자 ID 저장
+      Provider.of<UserProvider>(context, listen: false).setUserId(email);
 
-        // 모듈 확인 요청
-        final moduleResponse = await http.get(checkModuleUrl, headers: headers);
+      // 모듈 정보 확인
+      final moduleResponse = await http.get(moduleCheckUrl, headers: headers);
 
-        if (moduleResponse.statusCode == 200) {
-          try {
-            final moduleData =
-                jsonDecode(utf8.decode(moduleResponse.bodyBytes));
-            final bool hasModule = moduleData['hasModule'] ?? false;
+      if (moduleResponse.statusCode == 200) {
+        final moduleData = jsonDecode(utf8.decode(moduleResponse.bodyBytes));
+        final bool hasModule = moduleData['hasModule'] ?? false;
 
-            if (hasModule) {
-              // 모듈이 있으면 AddAppyPage로 이동
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddAppyPage(),
-                ),
-              );
-            } else {
-              // 모듈이 없으면 AddModulePage로 이동
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddModulePage(),
-                ),
-              );
-            }
-          } catch (e) {
-            // JSON 파싱 오류
-            print("JSON 파싱 오류: $e");
-            showCustomErrorDialog(
-              context: context,
-              message: "모듈 확인 데이터 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
-              buttonText: "확인",
-              onConfirm: () {
-                Navigator.of(context).pop();
-              },
+        if (!hasModule) {
+          // 모듈이 없다면 모듈 등록 페이지로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddModulePage()),
+          );
+          return;
+        }
+
+        // Appy 정보 확인
+        final appyResponse = await http.get(appyCheckUrl, headers: headers);
+
+        if (appyResponse.statusCode == 200) {
+          final appyData = jsonDecode(utf8.decode(appyResponse.bodyBytes)) as List;
+          final bool hasAppy = appyData.isNotEmpty;
+
+          if (!hasAppy) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddAppyPage()),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
             );
           }
         } else {
-          // 모듈 확인 실패 (예: 404, 500)
-          print("모듈 확인 실패: ${moduleResponse.statusCode}");
           showCustomErrorDialog(
             context: context,
-            message: "모듈 확인 중 오류가 발생했습니다. 상태 코드: ${moduleResponse.statusCode}",
+            message: "Appy 확인 요청 중 문제가 발생했습니다. 상태 코드: ${appyResponse.statusCode}",
             buttonText: "확인",
             onConfirm: () {
               Navigator.of(context).pop();
             },
           );
         }
-      } else if (loginResponse.statusCode == 400) {
-        // 로그인 실패 - 서버에서 반환된 에러 메시지 처리
-        final String errorMessage =
-            utf8.decode(loginResponse.bodyBytes); // 응답 메시지 디코딩
-        showCustomErrorDialog(
-          context: context,
-          message: errorMessage, // 서버 메시지 그대로 표시
-
-          buttonText: "확인",
-          onConfirm: () {
-            Navigator.of(context).pop();
-          },
-        );
       } else {
-        // 기타 에러 처리
+        // 모듈 확인 실패 처리
         showCustomErrorDialog(
           context: context,
-          message: "로그인 중 문제가 발생했습니다. 다시 시도해주세요.",
+          message: "모듈 확인 중 오류가 발생했습니다.",
           buttonText: "확인",
           onConfirm: () {
             Navigator.of(context).pop();
           },
         );
       }
-    } catch (e) {
-      // 네트워크 에러 처리
-      print("네트워크 에러: $e");
+    } else if (loginResponse.statusCode == 400) {
+      // 로그인 실패 처리
+      final String errorMessage = utf8.decode(loginResponse.bodyBytes);
       showCustomErrorDialog(
         context: context,
-        message: "서버와 연결할 수 없습니다. 인터넷 연결을 확인해주세요.",
+        message: errorMessage,
+        buttonText: "확인",
+        onConfirm: () {
+          Navigator.of(context).pop();
+        },
+      );
+    } else {
+      // 기타 에러 처리
+      showCustomErrorDialog(
+        context: context,
+        message: "로그인 중 문제가 발생했습니다.",
         buttonText: "확인",
         onConfirm: () {
           Navigator.of(context).pop();
         },
       );
     }
+  } catch (e) {
+    // 네트워크 에러 처리
+    showCustomErrorDialog(
+      context: context,
+      message: "서버와 연결할 수 없습니다. 인터넷 연결을 확인해주세요.",
+      buttonText: "확인",
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
