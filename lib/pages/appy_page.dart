@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:appy_app/pages/chat_page.dart';
 import 'package:appy_app/pages/gift_page.dart';
+import 'package:appy_app/pages/home_page.dart';
 import 'package:appy_app/widgets/appy.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/widgets/theme.dart';
@@ -27,22 +28,66 @@ class AppyPage extends StatefulWidget {
 class _AppyPageState extends State<AppyPage> {
   late String randomText;
   bool _isAnimating = true; // 애니메이션 상태 플래그
-  bool _isNewChat = true;
+  bool _isNewChat = false; // 새로운 채팅
   bool _isNewGift = false;
   String? lastText; // 랜덤 텍스트 선택 중복 방지용
 
-  // 사탕 개수 초기화
-  int currentCandyNum = 5;
+  // 각 appyID에 따른 사탕 개수 관리
+  final Map<String, int> candyNumByAppyID = {
+    "ID001": 3, // 예: ID001 캐릭터의 초기 사탕 개수
+    "ID002": 5, // 예: ID002 캐릭터의 초기 사탕 개수
+    "ID003": 2, // 예: ID003 캐릭터의 초기 사탕 개수
+  };
 
-  // 프로그레스 바 초기화
-  int currentProgressNum = 5; // 현재 진행 상태
+  // 현재 appyID의 사탕 개수
+  int get currentCandyNum => candyNumByAppyID[widget.appyID] ?? 0;
+
+  // 현재 appyID의 사탕 개수 설정
+  set currentCandyNum(int value) {
+    candyNumByAppyID[widget.appyID] = value;
+  }
+
+
+  // 각 appyID에 따른 진행 상태 관리
+  final Map<String, int> progressNumByAppyID = {
+    "ID001": 2,
+    "ID002": 4,
+    "ID003": 6,
+  };
+
   final double maxSteps = 7; // 최대 단계 수
+
+  // 현재 appyID의 진행 상태
+  int get currentProgressNum => progressNumByAppyID[widget.appyID] ?? 0;
+
+  // 현재 appyID의 진행 상태 설정
+  set currentProgressNum(int value) {
+    progressNumByAppyID[widget.appyID] = value;
+  }
+
+  // 각 appyID에 따른 선물함 레벨 관리
+  final Map<String, int> levelByAppyID = {
+    "ID001": 7,
+    "ID002": 3,
+    "ID003": 3,
+  };
+
+ // 현재 appyID의 진행 상태
+  int get currentLevel => levelByAppyID[widget.appyID] ?? 0;
+
+  // 현재 appyID의 진행 상태 설정
+  set cuurrentLevel(int value) {
+    levelByAppyID[widget.appyID] = value;
+  }
+
+
 
   @override
   void initState() {
     super.initState();
     String appyID = widget.appyID;
     int appyType = widget.appyType;
+    int currentProgressNum = appyLevels[widget.appyType];
 
     _getRandomText(characterTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
   }
@@ -88,7 +133,7 @@ class _AppyPageState extends State<AppyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColors.homeBackground,
-        appBar: BuildAppBar(context),
+        appBar: _buildAppBar(context),
         body: Stack(
           children: [
             //배경 색상 나누기
@@ -190,13 +235,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 이전 인덱스가 있는 경우
                                     int preIndex =
-                                        RFIDS.indexOf(widget.appyID) - 1;
+                                        appyIDs.indexOf(widget.appyID) - 1;
                                     if (preIndex >= 0) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: RFIDS[preIndex],
+                                            appyID: appyIDs[preIndex],
                                             appyType: appyTypes[preIndex],
                                           ),
                                         ),
@@ -221,13 +266,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 다음 인덱스가 있는 경우
                                     int nextIndex =
-                                        RFIDS.indexOf(widget.appyID) + 1;
-                                    if (nextIndex < RFIDS.length) {
+                                        appyIDs.indexOf(widget.appyID) + 1;
+                                    if (nextIndex < appyIDs.length) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: RFIDS[nextIndex],
+                                            appyID: appyIDs[nextIndex],
                                             appyType: appyTypes[nextIndex],
                                           ),
                                         ),
@@ -252,11 +297,18 @@ class _AppyPageState extends State<AppyPage> {
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   // 에피 이름 가져오기
-                  child: Text(
-                    appyNamesKo[widget.appyType],
-                    style: const TextStyle(
-                      fontSize: TextSize.large,
-                      fontWeight: FontWeight.bold,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isNewChat = !_isNewChat;
+                      });
+                    },
+                    child: Text(
+                      appyNamesKo[widget.appyType],
+                      style: const TextStyle(
+                        fontSize: TextSize.large,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -311,22 +363,29 @@ class _AppyPageState extends State<AppyPage> {
                               LinearPercentIndicator(
                                 backgroundColor: AppColors.iconBackground,
                                 alignment: MainAxisAlignment.center,
-                                width: 280.0,
+                                width: MediaQuery.of(context).size.width * 0.8,
                                 animation: true,
                                 animationDuration: 200,
                                 animateFromLastPercent: true,
-                                lineHeight: 28.0,
-                                trailing: Image.asset(
-                                  "assets/icons/gift_box_question.png",
-                                  height: 40,
-                                ),
                                 percent: currentProgressNum / maxSteps,
+                                lineHeight: 28.0,
                                 // center: Text('$currentProgressNum',
                                 //     style: TextStyle(
                                 //       color: AppColors.textWhite,
                                 //     )),
                                 barRadius: const Radius.circular(15.0),
                                 progressColor: AppColors.accent,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    currentCandyNum++;
+                                  });
+                                },
+                                child: Image.asset(
+                                  "assets/icons/gift_box_question.png",
+                                  height: 40,
+                                ),
                               ),
                             ],
                           ),
@@ -492,7 +551,6 @@ class _AppyPageState extends State<AppyPage> {
                                   width: 5,
                                 ),
                                 //선물함 버튼
-
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
@@ -501,8 +559,12 @@ class _AppyPageState extends State<AppyPage> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                const GiftPage()));
+                                            builder: (context) => GiftPage(
+                                                  characterId: appyIDs.indexOf(
+                                                          widget.appyID) +
+                                                      1,
+                                                      characterLevel: currentLevel,
+                                                )));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.all(3.0),
@@ -672,4 +734,26 @@ class _SpeechBubbleState extends State<SpeechBubble> {
       ),
     );
   }
+}
+
+
+AppBar _buildAppBar(BuildContext context) {
+  return AppBar(
+    backgroundColor: Colors.transparent,
+    toolbarHeight: 70,
+    centerTitle: true,
+    leading: IconButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      const HomePage()));
+        },
+        icon: const Icon(
+          Icons.arrow_back_ios,
+          size: IconSize.medium,
+          color: AppColors.icon,
+        )),
+  );
 }
