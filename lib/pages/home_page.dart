@@ -171,7 +171,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   },
                   child: Image.asset(
                     "assets/images/appy_${appyNames[2]}.png",
-                    height: ImageSize.appySmall,
+                    height: appySize[2],
                   ),
                 ),
               );
@@ -199,7 +199,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   },
                   child: Image.asset(
                     "assets/images/appy_${appyNames[1]}.png",
-                    height: ImageSize.appySmall,
+                    height: appySize[1],
                   ),
                 ),
               );
@@ -227,7 +227,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   },
                   child: Image.asset(
                     "assets/images/appy_${appyNames[0]}.png",
-                    height: ImageSize.appySmall,
+                    height: appySize[0],
                   ),
                 ),
               );

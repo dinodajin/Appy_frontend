@@ -7,19 +7,20 @@ final List<String> appyNames = ["nubi", "bobby", "levi"];
 final List<String> appyNamesKo = ["누비", "바비", "레비"];
 // 캐릭터 이미지 파일명
 final List<String> appySideImages = [
-  "appy_nubi_side.png", 
-  "appy_bobby_side.png", 
+  "appy_nubi_side.png",
+  "appy_bobby_side.png",
   "appy_levi_side.png"
 ];
 
 final List<String> appyImages = [
-  "appy_nubi.png", 
-  "appy_bobby.png", 
+  "appy_nubi.png",
+  "appy_bobby.png",
   "appy_levi.png"
 ];
 
-final List<int> appyLevels = [3, 3, 3];
+final List<double> appySize = [110, 100, 120];
 
+final List<int> appyLevels = [3, 3, 3];
 
 // 일반 대사 데이터
 final List<List<String>> characterTexts = [
