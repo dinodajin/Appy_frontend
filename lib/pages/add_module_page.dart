@@ -26,7 +26,7 @@ class _AddModulePageState extends State<AddModulePage> {
   }
 
   Future<void> _fetchLastModuleId() async {
-    final url = Uri.parse("http://3.36.103.205:8083/api/modules/last-id");
+    final url = Uri.parse("http://192.168.0.54:8083/api/modules/last-id");
 
     try {
       final response = await http.get(url);
@@ -47,22 +47,34 @@ class _AddModulePageState extends State<AddModulePage> {
             moduleId = "M_001"; // 기본값
           }
         });
+
+        // Provider에 moduleId 업데이트
+        Provider.of<UserProvider>(context, listen: false).setModuleId(moduleId);
+        print("AddModulePage에서 저장한 moduleId: $moduleId");
+        print("Provider에서 읽은 moduleId: ${Provider.of<UserProvider>(context, listen: false).moduleId}");
+
       } else {
         _showErrorDialog("MODULE_ID를 가져오는데 실패했습니다. 기본값 M_001을 사용합니다.");
         setState(() {
           moduleId = "M_001";
         });
+
+        // Provider에 기본값 업데이트
+        Provider.of<UserProvider>(context, listen: false).setModuleId(moduleId);
       }
     } catch (e) {
       _showErrorDialog("네트워크 오류 발생: $e. 기본값 M_001을 사용합니다.");
       setState(() {
         moduleId = "M_001";
       });
+
+      // Provider에 기본값 업데이트
+      Provider.of<UserProvider>(context, listen: false).setModuleId(moduleId);
     }
   }
 
   Future<void> _sendModuleData(String userId) async {
-    final url = Uri.parse("http://3.36.103.205:8083/api/modules/save");
+    final url = Uri.parse("http://192.168.0.54:8083/api/modules/save");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "MODULE_ID": moduleId,
