@@ -8,6 +8,32 @@ import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/widgets/widget.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+// RFID 리스트 및 데이터
+List<String> RFIDS = ["02719612895", "195307716957", "1761222116188"];
+List<int> appyTypes = [0, 1, 2];
+final List<String> appyNames = ["nubi", "bobby", "levi"];
+final List<String> appyNamesKo = ["누비", "바비", "레비"];
+final List<String> appyImages = ["appy_nubi.png", "appy_bobby.png", "appy_levi.png"];
+
+// RFID 매칭 함수
+Map<String, dynamic> getCharacterData(String rfid) {
+  int index = RFIDS.indexOf(rfid);
+  if (index == -1) {
+    return {
+      "type": null,
+      "name": "Unknown",
+      "nameKo": "알 수 없음",
+      "image": "unknown.png"
+    };
+  }
+  return {
+    "type": appyTypes[index],
+    "name": appyNames[index],
+    "nameKo": appyNamesKo[index],
+    "image": appyImages[index],
+  };
+}
+
 class AddAppyPage extends StatefulWidget {
   const AddAppyPage({super.key});
 
@@ -19,6 +45,8 @@ class _AddAppyPageState extends State<AddAppyPage> {
   bool _isDetected = false;
   bool isProcessing = false;
   String rfid = "";
+  String characterNameKo = ""; // 캐릭터 이름 (한글)
+  String characterImage = ""; // 캐릭터 이미지
 
   @override
   void initState() {
@@ -27,40 +55,42 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> fetchLatestRfid() async {
-  const latestUrl = "http://192.168.0.54:8083/api/module-connect/latest";
+    const latestUrl = "http://192.168.0.54:8083/api/module-connect/latest";
 
-  while (!_isDetected) {
-    try {
-      final response = await http.get(Uri.parse(latestUrl));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          rfid = data["RFID_ID"] ?? "";
-          _isDetected = rfid.isNotEmpty;
-        });
+    while (!_isDetected) {
+      try {
+        final response = await http.get(Uri.parse(latestUrl));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          setState(() {
+            rfid = data["RFID_ID"] ?? "";
+            _isDetected = rfid.isNotEmpty;
+          });
 
-        if (_isDetected) {
-          final userId = Provider.of<UserProvider>(context, listen: false).userId;
-          final moduleId = Provider.of<UserProvider>(context, listen: false).moduleId;
+          if (_isDetected) {
+            final characterData = getCharacterData(rfid);
+            characterNameKo = characterData["nameKo"];
+            characterImage = characterData["image"];
 
-          await registerRfid(moduleId);
-          await registerAppy(userId, moduleId);
-          await resetLatestRfid();
-          print("RFID 감지 및 처리 성공: $rfid");
-          return; // 루프 종료
+            final userId = Provider.of<UserProvider>(context, listen: false).userId;
+            final moduleId = Provider.of<UserProvider>(context, listen: false).moduleId;
+
+            await registerRfid(moduleId);
+            await registerAppy(userId, moduleId, characterData);
+            await resetLatestRfid();
+            print("RFID 감지 및 처리 성공: $rfid");
+            return;
+          }
+        } else {
+          print("RFID 감지 실패: ${response.statusCode}, ${response.body}");
         }
-      } else {
-        print("RFID 감지 실패: ${response.statusCode}, ${response.body}");
+      } catch (e) {
+        print("서버 요청 실패: $e");
       }
-    } catch (e) {
-      print("서버 요청 실패: $e");
+
+      await Future.delayed(const Duration(seconds: 1));
     }
-
-    // 요청 실패 시 1초 대기 후 재시도
-    await Future.delayed(const Duration(seconds: 1));
   }
-}
-
 
   Future<void> resetLatestRfid() async {
     const url = "http://192.168.0.54:8083/api/module-connect/reset-latest";
@@ -77,22 +107,13 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> registerRfid(String moduleId) async {
-    if (rfid.isEmpty) {
-      _showSnackBar("RFID가 감지되지 않았습니다.", Colors.red);
-      return;
-    }
-
     const url = "http://192.168.0.54:8083/api/module-connect/rfid/register";
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "RFID_ID": rfid,
-          "MODULE_ID": moduleId,
-        }),
+        body: jsonEncode({"RFID_ID": rfid, "MODULE_ID": moduleId}),
       );
-
       if (response.statusCode == 200) {
         print("RFID 등록 성공: ${response.body}");
       } else {
@@ -103,7 +124,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
     }
   }
 
-  Future<void> registerAppy(String userId, String moduleId) async {
+  Future<void> registerAppy(String userId, String moduleId, Map<String, dynamic> characterData) async {
     const url = "http://192.168.0.54:8083/api/character/register";
 
     try {
@@ -114,14 +135,13 @@ class _AddAppyPageState extends State<AddAppyPage> {
           "RFID_ID": rfid,
           "USER_ID": userId,
           "MODULE_ID": moduleId,
-          "CHARACTER_TYPE": 0,
-          "CHARACTER_NAME": "레비",
+          "CHARACTER_TYPE": characterData["type"],
+          "CHARACTER_NAME": characterData["nameKo"],
           "GAUGE": 0,
           "SNACK_COUNT": 0,
           "CHARACTER_LEVEL": 0,
         }),
       );
-
       if (response.statusCode == 200) {
         print("Appy 등록 성공: ${response.body}");
       } else {
@@ -129,17 +149,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
       }
     } catch (e) {
       print("서버 요청 실패: $e");
-      _showSnackBar("서버 연결 오류", Colors.red);
     }
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-      ),
-    );
   }
 
   @override
@@ -154,7 +164,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
             children: [
               const SizedBox(height: 20),
               Text(
-                _isDetected ? "레비" : "",
+                _isDetected ? characterNameKo : "",
                 style: const TextStyle(
                   color: AppColors.textMedium,
                   fontSize: TextSize.medium,
@@ -173,7 +183,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Image.asset(
-                              "assets/images/appy_levi.png",
+                              "assets/images/$characterImage",
                               height: 300,
                             ),
                             const Text(
@@ -206,7 +216,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
                           ],
                         ),
                 ),
-                ),
+              ),
               if (_isDetected)
                 GestureDetector(
                   onTap: () {
@@ -217,7 +227,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
                   },
                   child: BuildButton(
                     "홈화면으로 이동하기",
-                    AppColors.accent, // 활성화 색상
+                    AppColors.accent,
                     AppColors.textWhite,
                   ),
                 ),
