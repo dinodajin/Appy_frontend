@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:appy_app/pages/appy_page.dart';
 import 'package:appy_app/pages/module_map_page.dart';
 import 'package:appy_app/pages/setting_page.dart';
+import 'package:appy_app/widgets/appy.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with TickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final List<AnimationController> _controllers = [];
   final List<Animation<double>> _topAnimations = [];
   final List<Animation<double>> _leftAnimations = [];
@@ -140,10 +140,10 @@ class _HomePageState extends State<HomePage>
       body: Stack(
         children: [
           Container(
-            height: 812, //아이폰 미니 높이
+            height: MediaQuery.of(context).size.height,
             child: SizedBox.expand(
               child: Image.asset(
-                "assets/images/background.png",
+                "assets/images/home_background.png",
                 fit: BoxFit.cover,
               ),
             ),
@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage>
                     );
                   },
                   child: Image.asset(
-                    "assets/images/appy_levi.png",
+                    "assets/images/appy_${appyNames[2]}.png",
                     height: ImageSize.appySmall,
                   ),
                 ),
@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage>
                     );
                   },
                   child: Image.asset(
-                    "assets/images/appy_bobby.png",
+                    "assets/images/appy_${appyNames[1]}.png",
                     height: ImageSize.appySmall,
                   ),
                 ),
@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage>
                     );
                   },
                   child: Image.asset(
-                    "assets/images/appy_nubi.png",
+                    "assets/images/appy_${appyNames[0]}.png",
                     height: ImageSize.appySmall,
                   ),
                 ),
