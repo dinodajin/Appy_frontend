@@ -17,7 +17,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final List<Map<String, String>> messages = [];
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final String apiUrl = 'http://3.36.103.205:8083/api/chat';
+  final String apiUrl = 'http://192.168.0.54:8083/api/chat';
 
   Timer? _pollingTimer; // 폴링 타이머
 
