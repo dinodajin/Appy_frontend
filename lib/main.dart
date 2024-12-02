@@ -1,3 +1,4 @@
+import 'package:appy_app/pages/home_page.dart';
 import 'package:appy_app/pages/onboarding_page.dart';
 import 'package:appy_app/providers/user_provider.dart'; // UserProvider 추가
 import 'package:appy_app/widgets/theme.dart';

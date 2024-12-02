@@ -163,8 +163,8 @@ class _HomePageState extends State<HomePage>
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppyPage(
-                          appyID: "ID001",
-                          appyType: 0,
+                          RFID: "02719612895",
+                          appyType: 2,
                         ),
                       ),
                     );
@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage>
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppyPage(
-                          appyID: "ID002",
+                          RFID: "195307716957",
                           appyType: 1,
                         ),
                       ),
@@ -219,8 +219,8 @@ class _HomePageState extends State<HomePage>
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppyPage(
-                          appyID: "ID003",
-                          appyType: 2,
+                          RFID: "1761222116188",
+                          appyType: 0,
                         ),
                       ),
                     );

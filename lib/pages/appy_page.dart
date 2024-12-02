@@ -13,10 +13,10 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 
 // home에서 에피 하나를 눌렀을때 에피와 상호작용할 수 있는 페이지
 class AppyPage extends StatefulWidget {
-  final String appyID;
+  final String RFID;
   final int appyType; // Appy의 ID
   const AppyPage({
-    required this.appyID, //이름 초기화
+    required this.RFID, //이름 초기화
     required this.appyType, // Appy의 ID
     super.key,
   });
@@ -32,52 +32,54 @@ class _AppyPageState extends State<AppyPage> {
   bool _isNewGift = false;
   String? lastText; // 랜덤 텍스트 선택 중복 방지용
 
-  // 각 appyID에 따른 사탕 개수 관리
-  final Map<String, int> candyNumByAppyID = {
-    "ID001": 3, // 예: ID001 캐릭터의 초기 사탕 개수
-    "ID002": 5, // 예: ID002 캐릭터의 초기 사탕 개수
-    "ID003": 2, // 예: ID003 캐릭터의 초기 사탕 개수
+  // 각 RFID에 따른 사탕 개수 관리
+  final Map<String, int> candyNumByRFID = {
+    "195307716957": 3,
+    "02719612895": 5,
+    "1761222116188": 2,
   };
 
-  // 현재 appyID의 사탕 개수
-  int get currentCandyNum => candyNumByAppyID[widget.appyID] ?? 0;
+  // 현재 RFID의 사탕 개수
+  int get currentCandyNum => candyNumByRFID[widget.RFID] ?? 0;
 
-  // 현재 appyID의 사탕 개수 설정
+  // 현재 RFID의 사탕 개수 설정
   set currentCandyNum(int value) {
-    candyNumByAppyID[widget.appyID] = value;
+    candyNumByRFID[widget.RFID] = value;
   }
 
 
-  // 각 appyID에 따른 진행 상태 관리
-  final Map<String, int> progressNumByAppyID = {
-    "ID001": 2,
-    "ID002": 4,
-    "ID003": 6,
+  // 각 RFID에 따른 진행 상태 관리
+  final Map<String, int> progressNumByRFID = {
+    "195307716957": 2,
+    "02719612895": 4,
+    "1761222116188": 6,
   };
 
   final double maxSteps = 7; // 최대 단계 수
 
-  // 현재 appyID의 진행 상태
-  int get currentProgressNum => progressNumByAppyID[widget.appyID] ?? 0;
+  // 현재 RFID의 진행 상태
+  int get currentProgressNum => progressNumByRFID[widget.RFID] ?? 0;
 
-  // 현재 appyID의 진행 상태 설정
+  // 현재 RFID의 진행 상태 설정
   set currentProgressNum(int value) {
-    progressNumByAppyID[widget.appyID] = value;
+    progressNumByRFID[widget.RFID] = value;
   }
 
-  // 각 appyID에 따른 선물함 레벨 관리
-  final Map<String, int> levelByAppyID = {
-    "ID001": 7,
-    "ID002": 3,
-    "ID003": 3,
+
+//
+  // 각 RFID에 따른 선물함 레벨 관리
+  final Map<String, int> levelByRFID = {
+    "195307716957": 3,
+    "02719612895": 3,
+    "1761222116188": 3,
   };
 
- // 현재 appyID의 진행 상태
-  int get currentLevel => levelByAppyID[widget.appyID] ?? 0;
+ // 현재 RFID의 진행 상태
+  int get currentLevel => levelByRFID[widget.RFID] ?? 0;
 
-  // 현재 appyID의 진행 상태 설정
+  // 현재 RFID의 진행 상태 설정
   set cuurrentLevel(int value) {
-    levelByAppyID[widget.appyID] = value;
+    levelByRFID[widget.RFID] = value;
   }
 
 
@@ -85,7 +87,7 @@ class _AppyPageState extends State<AppyPage> {
   @override
   void initState() {
     super.initState();
-    String appyID = widget.appyID;
+    String RFID = widget.RFID;
     int appyType = widget.appyType;
     int currentProgressNum = appyLevels[widget.appyType];
 
@@ -235,13 +237,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 이전 인덱스가 있는 경우
                                     int preIndex =
-                                        appyIDs.indexOf(widget.appyID) - 1;
+                                        RFIDS.indexOf(widget.RFID) - 1;
                                     if (preIndex >= 0) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: appyIDs[preIndex],
+                                            RFID: RFIDS[preIndex],
                                             appyType: appyTypes[preIndex],
                                           ),
                                         ),
@@ -266,13 +268,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 다음 인덱스가 있는 경우
                                     int nextIndex =
-                                        appyIDs.indexOf(widget.appyID) + 1;
-                                    if (nextIndex < appyIDs.length) {
+                                        RFIDS.indexOf(widget.RFID) + 1;
+                                    if (nextIndex < RFIDS.length) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            appyID: appyIDs[nextIndex],
+                                            RFID: RFIDS[nextIndex],
                                             appyType: appyTypes[nextIndex],
                                           ),
                                         ),
@@ -560,8 +562,8 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => GiftPage(
-                                                  characterId: appyIDs.indexOf(
-                                                          widget.appyID) +
+                                                  characterId: RFIDS.indexOf(
+                                                          widget.RFID) +
                                                       1,
                                                       characterLevel: currentLevel,
                                                 )));
