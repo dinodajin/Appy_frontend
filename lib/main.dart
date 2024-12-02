@@ -35,8 +35,8 @@ class AppyApp extends StatelessWidget {
             bodyLarge: TextStyle(color: AppColors.textHigh),
           ),
         ),
-        // home: const OnboardingPage(),
-        home: HomePage(),
+        home: const OnboardingPage(),
+        // home: HomePage(),
       ),
     );
   }
