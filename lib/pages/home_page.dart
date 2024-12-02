@@ -16,21 +16,25 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with TickerProviderStateMixin {
   final List<AnimationController> _controllers = [];
   final List<Animation<double>> _topAnimations = [];
   final List<Animation<double>> _leftAnimations = [];
   final Random _random = Random();
   final List<Map<String, double>> _startPositions = [
-    {"top": 300, "left": 200},
-    {"top": 200, "left": 150},
-    {"top": 200, "left": 300},
+    {"top": 300, "left": 150},
+    {"top": 200, "left": 100},
+    {"top": 350, "left": 200},
   ];
+
+  // 애니메이션 duration 값을 지정
+  final List<int> durations = [1500, 1800, 1800];
 
   // 영역 제한 값 설정
   final double topMin = 200;
   final double topMax = 400;
-  late double leftMin = 10;
+  late double leftMin = 20;
   late double leftMax = 300;
 
   @override
@@ -48,7 +52,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // 각각의 AnimationController 생성
       final controller = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 600),
+        duration: Duration(milliseconds: durations[i]),
       );
 
       _controllers.add(controller);
@@ -70,26 +74,46 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _setNewAnimationValues(int index) {
-    final startTop = _startPositions[index]["top"]!;
-    final startLeft = _startPositions[index]["left"]!;
+    final startTop =
+        (index < _topAnimations.length && _topAnimations[index] != null)
+            ? _topAnimations[index].value
+            : _startPositions[index]["top"]!;
+    final startLeft =
+        (index < _leftAnimations.length && _leftAnimations[index] != null)
+            ? _leftAnimations[index].value
+            : _startPositions[index]["left"]!;
 
-    // 새로운 랜덤 위치 생성 (범위 제한)
-    final newTop = (startTop + _random.nextInt(40) - 20)
-        .clamp(topMin, topMax); // top은 200 ~ 500 사이
-    final newLeft = (startLeft + _random.nextInt(40) - 20)
-        .clamp(leftMin, leftMax); // left는 0 ~ 화면의 가로 길이
+    // 새로운 랜덤 위치 생성 (범위 확장)
+    double newTop = startTop + _random.nextInt(200) - 100; // 더 멀리 이동
+    double newLeft = startLeft + _random.nextInt(200) - 100;
+
+    // 경계값에 도달한 경우 반대 방향으로 이동
+    if (newTop <= topMin || newTop >= topMax) {
+      newTop += _random.nextInt(30) * (_random.nextBool() ? 1 : -1); // 반대 방향 이동
+    }
+    if (newLeft <= leftMin || newLeft >= leftMax) {
+      newLeft += _random.nextInt(30) * (_random.nextBool() ? 1 : -1);
+    }
+
+    // 경계값을 벗어나지 않도록 제한
+    newTop = newTop.clamp(topMin, topMax);
+    newLeft = newLeft.clamp(leftMin, leftMax);
 
     // 애니메이션 업데이트
     setState(() {
-      if (_topAnimations.length > index) {
+      if (index < _topAnimations.length) {
         _topAnimations[index] = Tween<double>(begin: startTop, end: newTop)
+            .chain(CurveTween(curve: Curves.easeInOut))
             .animate(_controllers[index]);
         _leftAnimations[index] = Tween<double>(begin: startLeft, end: newLeft)
+            .chain(CurveTween(curve: Curves.easeInOut))
             .animate(_controllers[index]);
       } else {
         _topAnimations.add(Tween<double>(begin: startTop, end: newTop)
+            .chain(CurveTween(curve: Curves.easeInOut))
             .animate(_controllers[index]));
         _leftAnimations.add(Tween<double>(begin: startLeft, end: newLeft)
+            .chain(CurveTween(curve: Curves.easeInOut))
             .animate(_controllers[index]));
       }
 
@@ -139,7 +163,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppyPage(
-                          appyID: "ID001", appyType: 0,
+                          appyID: "ID001",
+                          appyType: 0,
                         ),
                       ),
                     );
@@ -181,7 +206,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             },
           ),
 
-          //2번째 에피
+          //3번째 에피
           AnimatedBuilder(
             animation: _controllers[2],
             builder: (context, child) {

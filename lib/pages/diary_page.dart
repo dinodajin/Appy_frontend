@@ -23,9 +23,9 @@ class _DiaryPageState extends State<DiaryPage> {
       case 1:
         return "레비의 그림일기";
       case 2:
-        return "누비의 그림일기";
+        return "바비의 그림일기";
       case 3:
-        return "밥이의 그림일기";
+        return "누비의 그림일기";
       default:
         return "캐릭터의 그림일기";
     }
@@ -47,10 +47,9 @@ class _DiaryPageState extends State<DiaryPage> {
         child: Padding(
           padding: AppPadding.body,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
+            // mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
             crossAxisAlignment: CrossAxisAlignment.center, // 가로 중앙 정렬
             children: [
-              // const SizedBox(height: 66), // 앱바와 이미지 간의 간격
               Align(
                 alignment: Alignment.center, // 가로 방향 중앙 정렬
                 child: _buildDiaryImage(diaryImagePath), // 이미지 위젯 생성
@@ -76,7 +75,7 @@ class _DiaryPageState extends State<DiaryPage> {
 
           // 화면 크기 비례로 이미지 크기 조정
           final imageWidth = screenWidth * 0.8; // 화면 너비의 60%
-          final imageHeight = screenHeight * 0.7; // 화면 높이의 30%
+          final imageHeight = screenHeight * 0.6; // 화면 높이의 30%
 
           return SizedBox(
             width: imageWidth,
