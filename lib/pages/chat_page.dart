@@ -25,7 +25,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final List<Map<String, String>> messages = [];
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final String apiUrl = 'http://192.168.0.54:8083/api/chat';
+  final String apiUrl = 'http://192.168.130.234:8083/api/chat';
 
   late String characterName;
   late String characterNameKo; 
@@ -255,7 +255,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         ),
         title: Row(
           children: [
-            BuildChatImage("assets/images/appy_levi_crop.png", size: 46),
+            BuildChatImage("assets/images/appy_${characterName}_crop.png", size: 46),
             const SizedBox(width: 19),
             Text(
               characterNameKo,
@@ -339,7 +339,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           if (!isUser) ...[
             Column(
               children: [
-                BuildChatImage("assets/images/appy_levi_crop.png"),
+                BuildChatImage("assets/images/appy_${characterName}_crop.png"),
                 const SizedBox(height: 4),
               ],
             ),
