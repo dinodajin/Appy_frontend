@@ -14,10 +14,12 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 // home에서 에피 하나를 눌렀을때 에피와 상호작용할 수 있는 페이지
 class AppyPage extends StatefulWidget {
   final String RFID;
-  final int appyType; // Appy의 ID
+  final int appyType;
+  final String appyName;
   const AppyPage({
-    required this.RFID, //이름 초기화
-    required this.appyType, // Appy의 ID
+    required this.RFID, //appy
+    required this.appyType,
+    required this.appyName,
     super.key,
   });
 
@@ -245,6 +247,7 @@ class _AppyPageState extends State<AppyPage> {
                                           builder: (context) => AppyPage(
                                             RFID: RFIDS[preIndex],
                                             appyType: appyTypes[preIndex],
+                                            appyName: appyNamesKo[preIndex],
                                           ),
                                         ),
                                       );
@@ -276,6 +279,7 @@ class _AppyPageState extends State<AppyPage> {
                                           builder: (context) => AppyPage(
                                             RFID: RFIDS[nextIndex],
                                             appyType: appyTypes[nextIndex],
+                                            appyName: appyNamesKo[nextIndex],
                                           ),
                                         ),
                                       );

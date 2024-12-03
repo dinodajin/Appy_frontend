@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:convert';
+import 'package:appy_app/pages/appy_page.dart';
 import 'package:appy_app/pages/module_map_page.dart';
 import 'package:appy_app/pages/setting_page.dart';
 import 'package:appy_app/widgets/theme.dart';
@@ -186,28 +187,30 @@ Widget build(BuildContext context) {
           ..._registeredItems.asMap().entries.map((entry) {
             final index = entry.key;
             final item = entry.value;
-
+            
             return AnimatedBuilder(
               animation: _controllers[index],
               builder: (context, child) {
-                print("Screen Size: ${MediaQuery.of(context).size.width}x${MediaQuery.of(context).size.height}");
-
-                print("Item ${item['characterName']}: top=${_topAnimations[index].value}, left=${_leftAnimations[index].value}");
-
                 return Positioned(
                   top: _topAnimations[index].value,
                   left: _leftAnimations[index].value,
                   child: GestureDetector(
                     onTap: () {
-                      print("Tapped on RFID: ${item['RFID']}");
+                      // 이미지 클릭 시 AppyPage로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AppyPage(
+                            RFID: item['rfidId'],
+                            appyName: item['characterName'],
+                            appyType: item['characterType'],
+                          ),
+                        ),
+                      );
                     },
                     child: Image.asset(
                       "assets/images/appy_${item['characterName']}.png", // 캐릭터 이미지
                       height: 100,
-                      errorBuilder: (context, error, stackTrace) {
-                      print("Error loading image: ${item['characterName']}");
-                      return Icon(Icons.error, size: 100, color: Colors.red);
-                    },
                     ),
                   ),
                 );
