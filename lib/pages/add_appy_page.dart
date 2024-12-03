@@ -136,7 +136,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
           "USER_ID": userId,
           "MODULE_ID": moduleId,
           "CHARACTER_TYPE": characterData["type"],
-          "CHARACTER_NAME": characterData["nameKo"],
+          "CHARACTER_NAME": characterData["name"],
           "GAUGE": 0,
           "SNACK_COUNT": 0,
           "CHARACTER_LEVEL": 0,
