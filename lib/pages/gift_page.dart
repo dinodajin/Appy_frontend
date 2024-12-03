@@ -34,7 +34,6 @@ class _GiftPageState extends State<GiftPage> {
   } 
 
   String _getGiftImagePath(int characterId, int level) {
-    // 이미지 경로 동적 생성
     return "assets/icons/gift/gift_${characterId}_${level}.png";
   }
 
@@ -44,7 +43,7 @@ class _GiftPageState extends State<GiftPage> {
       appBar: BuildBigAppBar(
         context,
         _getAppBarTitle(widget.characterId),
-        "assets/icons/gift_box.png", // 아이콘은 동일
+        "assets/icons/gift_box.png",
       ),
       body: SafeArea(
         child: Padding(
@@ -69,8 +68,6 @@ class _GiftPageState extends State<GiftPage> {
                   final level = index + 1; // 레벨 기준
                   if (level <= widget.characterLevel) {
                     // 잠금 해제된 아이템
-                      print("characterId${widget.characterId}");
-                      print("level: ${level}");
                     return GestureDetector(
                       onTap: () {
                         _onUnlockedItemTap(level);
