@@ -23,11 +23,11 @@ class _GiftPageState extends State<GiftPage> {
     // 캐릭터 이름 반환
     switch (characterId) {
       case 1:
-        return "레비의 선물함";
+        return "누비의 선물함";
       case 2:
         return "바비의 선물함";
       case 3:
-        return "누비의 선물함";
+        return "레비의 선물함";
       default:
         return "캐릭터의 선물함";
     }

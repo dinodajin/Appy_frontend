@@ -21,11 +21,11 @@ class _DiaryPageState extends State<DiaryPage> {
     // 캐릭터 ID에 따라 다이어리 제목 설정
     switch (characterId) {
       case 1:
-        return "레비의 그림일기";
+        return "누비의 그림일기";
       case 2:
         return "바비의 그림일기";
       case 3:
-        return "누비의 그림일기";
+        return "레비의 그림일기";
       default:
         return "캐릭터의 그림일기";
     }
