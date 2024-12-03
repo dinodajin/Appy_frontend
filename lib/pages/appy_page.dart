@@ -25,7 +25,6 @@ class AppyPage extends StatefulWidget {
   const AppyPage({
     required this.userRfids,
     this.initialIndex = 0,
-
     Key? key,
   }) : super(key: key);
 
@@ -72,16 +71,16 @@ class _AppyPageState extends State<AppyPage> {
   }
 
   void _updatePage(bool isNext) {
-  setState(() {
-    currentIndex = isNext
-        ? (currentIndex + 1) % widget.userRfids.length // 원형 반복
-        : (currentIndex - 1 + widget.userRfids.length) % widget.userRfids.length; // 역방향 원형 반복
+    setState(() {
+      currentIndex = isNext
+          ? (currentIndex + 1) % widget.userRfids.length // 원형 반복
+          : (currentIndex - 1 + widget.userRfids.length) %
+              widget.userRfids.length; // 역방향 원형 반복
 
-    _initializeData(currentIndex);
-    _getRandomText(characterTexts[characterType]); // 캐릭터 타입에 따라 말풍선 텍스트 변경
-  });
-}
-
+      _initializeData(currentIndex);
+      _getRandomText(characterTexts[characterType]); // 캐릭터 타입에 따라 말풍선 텍스트 변경
+    });
+  }
 
   // 랜덤 텍스트 선택
   void _getRandomText(List<String> textList) {
@@ -102,7 +101,7 @@ class _AppyPageState extends State<AppyPage> {
 
     try {
       final response = await http.patch(
-      Uri.parse("$apiUrl?userId=${userId}"),
+        Uri.parse("$apiUrl?userId=${userId}"),
         headers: {"Content-Type": "application/json"},
         body: json.encode({
           "RFID_ID": rfid,
@@ -141,8 +140,8 @@ class _AppyPageState extends State<AppyPage> {
             onConfirm: () {
               Navigator.of(context).pop();
               setState(() {
-          _isNewGift = true;
-         });
+                _isNewGift = true;
+              });
             },
           );
         }
@@ -162,106 +161,104 @@ class _AppyPageState extends State<AppyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.homeBackground,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        toolbarHeight: 70,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            size: 24,
-            color: AppColors.icon,
+        backgroundColor: AppColors.homeBackground,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          toolbarHeight: 70,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              size: 24,
+              color: AppColors.icon,
+            ),
           ),
         ),
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                height: 300,
-                color: Colors.transparent,
-              ),
-              Flexible(
-                child: Container(
-                  color: AppColors.background,
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  height: 300,
+                  color: Colors.transparent,
                 ),
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              Stack(
-                children: [
-                  Positioned(
-                          bottom: 0, // 하단에 위치
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: 20, // 그림자가 적용될 영역 높이
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft:
-                                    Radius.circular(30), // 왼쪽 하단 모서리 둥글게
-                                bottomRight:
-                                    Radius.circular(30), // 오른쪽 하단 모서리 둥글게
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  blurRadius: 5.0, // 그림자 흐림 정도
-                                  spreadRadius: 1.0, // 그림자 확산 정도
-                                  offset: const Offset(0, 2), // 그림자 방향
-                                ),
-                              ],
+                Flexible(
+                  child: Container(
+                    color: AppColors.background,
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Stack(
+                  children: [
+                    Positioned(
+                      bottom: 0, // 하단에 위치
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 20, // 그림자가 적용될 영역 높이
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(30), // 왼쪽 하단 모서리 둥글게
+                            bottomRight: Radius.circular(30), // 오른쪽 하단 모서리 둥글게
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              blurRadius: 5.0, // 그림자 흐림 정도
+                              spreadRadius: 1.0, // 그림자 확산 정도
+                              offset: const Offset(0, 2), // 그림자 방향
                             ),
-                          ),
-                        ),
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
-                        ),
-                        child: SizedBox(
-                          height: 370,
-                          child: Image.asset(
-                            "assets/images/appy_background2.png",
-                            fit: BoxFit.fitHeight,
-                          ),
+                          ],
                         ),
                       ),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [                    
-                            SizedBox(
-                              height: 90,
-                              child: SpeechBubble(
-                                text: randomText,
-                                onAnimationEnd: () {
-                                  setState(() {
-                                    _isAnimating = false;
-                                  });
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 20,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                if (!_isAnimating) {
-                                  setState(() {
-                                    _getRandomText(characterTexts[
-                                        characterType]); //말풍선 클릭시 텍스트 변경
-                                    _isAnimating = true;
-                                });
+                    ),
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.48,
+                        child: Image.asset(
+                          "assets/images/appy_background2.png",
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(
+                          height: 90,
+                          child: SpeechBubble(
+                            text: randomText,
+                            onAnimationEnd: () {
+                              setState(() {
+                                _isAnimating = false;
+                              });
+                            },
+                          ),
+                        ),
+                        Container(
+                          height: 30,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (!_isAnimating) {
+                              setState(() {
+                                _getRandomText(characterTexts[
+                                    characterType]); //말풍선 클릭시 텍스트 변경
+                                _isAnimating = true;
+                              });
                             }
                           },
                           child: Row(
@@ -284,7 +281,7 @@ class _AppyPageState extends State<AppyPage> {
                               Image.asset(
                                 "assets/images/${appySideImages[characterType]}",
                                 height: 240,
-                                 ),
+                              ),
                               // 다음 에피
                               IconButton(
                                 icon: FaIcon(
@@ -350,7 +347,7 @@ class _AppyPageState extends State<AppyPage> {
                       ),
                       // 메인 컨테이너 (하단 그림자 제거)
                       Container(
-                        height: 200,
+                        height: MediaQuery.sizeOf(context).height * 0.2,
                         decoration: const BoxDecoration(
                           color: AppColors.background, // 하단 배경과 동일한 색상
                           borderRadius: BorderRadius.only(
@@ -360,53 +357,53 @@ class _AppyPageState extends State<AppyPage> {
                         ),
                       ),
                     ],
-                    ),
-                    Padding(
-                        padding: AppPadding.body,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                LinearPercentIndicator(
-                                  backgroundColor: AppColors.iconBackground,
-                                  alignment: MainAxisAlignment.center,
-                                  width: MediaQuery.of(context).size.width * 0.8,
-                                  animation: true,
-                                  animationDuration: 200,
-                                  animateFromLastPercent: true,
-                                  percent: currentGauge / maxSteps,
-                                  lineHeight: 28.0,
-                                  barRadius: const Radius.circular(15.0),
-                                  progressColor: AppColors.accent,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      currentSnackCount++;
-                                    });
-                                  },
-                                  child: Image.asset(
-                                    "assets/icons/gift_box_question.png",
-                                    height: 40,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Row(
+                  ),
+                  Padding(
+                      padding: AppPadding.body,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Stack(
+                              LinearPercentIndicator(
+                                backgroundColor: AppColors.iconBackground,
+                                alignment: MainAxisAlignment.center,
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                animation: true,
+                                animationDuration: 200,
+                                animateFromLastPercent: true,
+                                percent: currentGauge / maxSteps,
+                                lineHeight: 28.0,
+                                barRadius: const Radius.circular(15.0),
+                                progressColor: AppColors.accent,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    currentSnackCount++;
+                                  });
+                                },
+                                child: Image.asset(
+                                  "assets/icons/gift_box_question.png",
+                                  height: 40,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Stack(
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                         if (currentSnackCount > 0) {
+                                        if (currentSnackCount > 0) {
                                           _feed(characterType); // 사탕 주기 로직 실행
                                         } else {
                                           ScaffoldMessenger.of(context)
@@ -454,7 +451,7 @@ class _AppyPageState extends State<AppyPage> {
                                           ),
                                           Container(
                                             height: 5,
-                                          ),                       
+                                          ),
                                           SizedBox(
                                             width: 105,
                                             child: const Center(
@@ -492,8 +489,7 @@ class _AppyPageState extends State<AppyPage> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                 ChatPage(
+                                            builder: (context) => ChatPage(
                                                   rfid: rfid,
                                                 )));
                                   },
@@ -567,7 +563,8 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => GiftPage(
-                                                  characterId: RFIDS.indexOf(rfid) + 1,
+                                                  characterId:
+                                                      RFIDS.indexOf(rfid) + 1,
                                                   characterLevel: currentLevel,
                                                 )));
                                   },
