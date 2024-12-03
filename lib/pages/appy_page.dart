@@ -9,19 +9,31 @@ import 'package:appy_app/widgets/widget.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:appy_app/pages/home_page.dart';
+import 'package:appy_app/providers/user_provider.dart';
+import 'package:appy_app/widgets/theme.dart';
+import 'package:appy_app/widgets/appy.dart';
 
-// home에서 에피 하나를 눌렀을때 에피와 상호작용할 수 있는 페이지
 class AppyPage extends StatefulWidget {
   final String RFID;
   final int appyType;
   final String appyName;
+  final int snackCount;
+  final int gauge;
+  final int level;
+
   const AppyPage({
-    required this.RFID, //appy
+    required this.RFID,
     required this.appyType,
     required this.appyName,
-    super.key,
-  });
+    required this.snackCount,
+    required this.gauge,
+    required this.level,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<AppyPage> createState() => _AppyPageState();
@@ -34,66 +46,24 @@ class _AppyPageState extends State<AppyPage> {
   bool _isNewGift = false;
   String? lastText; // 랜덤 텍스트 선택 중복 방지용
 
-  // 각 RFID에 따른 사탕 개수 관리
-  final Map<String, int> candyNumByRFID = {
-    "195307716957": 3,
-    "02719612895": 5,
-    "1761222116188": 2,
-  };
-
-  // 현재 RFID의 사탕 개수
-  int get currentCandyNum => candyNumByRFID[widget.RFID] ?? 0;
-
-  // 현재 RFID의 사탕 개수 설정
-  set currentCandyNum(int value) {
-    candyNumByRFID[widget.RFID] = value;
-  }
-
-
-  // 각 RFID에 따른 진행 상태 관리
-  final Map<String, int> progressNumByRFID = {
-    "195307716957": 2,
-    "02719612895": 4,
-    "1761222116188": 6,
-  };
-
-  final double maxSteps = 7; // 최대 단계 수
-
-  // 현재 RFID의 진행 상태
-  int get currentProgressNum => progressNumByRFID[widget.RFID] ?? 0;
-
-  // 현재 RFID의 진행 상태 설정
-  set currentProgressNum(int value) {
-    progressNumByRFID[widget.RFID] = value;
-  }
-
-
-//
-  // 각 RFID에 따른 선물함 레벨 관리
-  final Map<String, int> levelByRFID = {
-    "195307716957": 3,
-    "02719612895": 3,
-    "1761222116188": 3,
-  };
-
- // 현재 RFID의 진행 상태
-  int get currentLevel => levelByRFID[widget.RFID] ?? 0;
-
-  // 현재 RFID의 진행 상태 설정
-  set cuurrentLevel(int value) {
-    levelByRFID[widget.RFID] = value;
-  }
-
-
+  int currentSnackCount = 0;
+  int currentGauge = 0;
+  int currentLevel = 0;
+  final maxSteps = 7;
 
   @override
   void initState() {
     super.initState();
-    String RFID = widget.RFID;
-    int appyType = widget.appyType;
-    int currentProgressNum = appyLevels[widget.appyType];
+    _initializeData();
+    _getRandomText(characterTexts[widget.appyType]);
+  }
 
-    _getRandomText(characterTexts[appyType]); // 초기화 시 랜덤 텍스트 설정
+  void _initializeData() {
+    setState(() {
+      currentSnackCount = widget.snackCount;
+      currentGauge = widget.gauge;
+      currentLevel = widget.level;
+    });
   }
 
   // 랜덤 텍스트 선택
@@ -107,16 +77,16 @@ class _AppyPageState extends State<AppyPage> {
     lastText = newText;
   }
 
-  // 프로그레스 바 단계별 증가
-  void _feed(appyType) async {
-    setState(() {
-      currentCandyNum--;
-      currentProgressNum += 1; // 단계별 증가
+  // 사탕 주기 로직
+  void _feed(appyType) {
+    if (currentSnackCount > 0) {
+      setState(() {
+        currentSnackCount--;
+        currentGauge += 1; // Gauge 증가
 
-      // 말풍선 텍스트를 간식 텍스트 중 랜덤하게 선택
+        // 말풍선 텍스트를 간식 텍스트 중 랜덤하게 선택
       _getRandomText(snackTexts[appyType]);
-
-      if (currentProgressNum >= maxSteps) {
+        if (currentGauge >= maxSteps) {
         showCustomErrorDialog(
           context: context,
           message: "${appyNamesKo[appyType]}의 선물이 도착했습니다.\n선물함을 확인해주세요.",
@@ -124,44 +94,68 @@ class _AppyPageState extends State<AppyPage> {
           onConfirm: () {
             Navigator.of(context).pop();
             setState(() {
-              _isNewGift = true;
-            });
+          _isNewGift = true;
+         });
           },
         ); // 최대값 도달 시 팝업 호출
-        currentProgressNum = 0; // 진행 상태 초기화
+        currentGauge = 0; // 진행 상태 초기화
       }
     });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("사탕이 없습니다!"),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.homeBackground,
-        appBar: _buildAppBar(context),
-        body: Stack(
-          children: [
-            //배경 색상 나누기
-            Column(
-              children: [
-                Container(
-                  height: 300,
-                  color: Colors.transparent,
-                ),
-                Flexible(
-                    child: Container(
+      backgroundColor: AppColors.homeBackground,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        toolbarHeight: 70,
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            size: 24,
+            color: AppColors.icon,
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // 배경 색상 나누기
+          Column(
+            children: [
+              Container(
+                height: 300,
+                color: Colors.transparent,
+              ),
+              Flexible(
+                child: Container(
                   color: AppColors.background,
-                ))
-              ],
-            ),
-            // 에피영역과 상호작용영역 나누기
-            Column(
-              children: [
-                Stack(
-                  children: [
-                    //배경
-                    Stack(
-                      children: [
-                        // 하단 그림자 영역
+                ),
+              ),
+            ],
+          ),
+          // 에피 영역과 상호작용 영역 나누기
+          Column(
+            children: [
+              // 배경 이미지 및 캐릭터
+              Stack(
+                children: [
+                  // 하단 그림자 영역
                         Positioned(
                           bottom: 0, // 하단에 위치
                           left: 0,
@@ -186,37 +180,35 @@ class _AppyPageState extends State<AppyPage> {
                             ),
                           ),
                         ),
-                        // 이미지 하단 모서리 둥글게
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(20), // 왼쪽 하단 모서리 둥글게
-                            bottomRight: Radius.circular(20), // 오른쪽 하단 모서리 둥글게
-                          ),
-                          child: SizedBox(
-                            height: 370,
-                            child: Image.asset(
-                              "assets/images/appy_background2.png",
-                              fit: BoxFit.fitHeight,
-                            ),
-                          ),
-                        ),
-                      ],
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
                     ),
-                    // 에피
+                    child: SizedBox(
+                      height: 370,
+                      child: Image.asset(
+                        "assets/images/appy_background2.png",
+                        fit: BoxFit.fitHeight,
+                      ),
+                    ),
+                  ),
+                  // 에피
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        //말풍선 영역
-                        SizedBox(
-                          height: 90,
-                          child: SpeechBubble(
-                              text: randomText,
-                              onAnimationEnd: () {
-                                setState(() {
-                                  _isAnimating = false; //애니메이션 종료
-                                });
-                              }),
+                      // 랜덤 말풍선
+                      SizedBox(
+                        height: 90,
+                        child: SpeechBubble(
+                          text: randomText,
+                          onAnimationEnd: () {
+                            setState(() {
+                              _isAnimating = false;
+                            });
+                          },
                         ),
+                      ),
                         Container(
                           height: 20,
                         ),
@@ -227,11 +219,11 @@ class _AppyPageState extends State<AppyPage> {
                               setState(() {
                                 _getRandomText(characterTexts[
                                     widget.appyType]); //말풍선 클릭시 텍스트 변경
-                                _isAnimating = true; // 애니메이션 시작
-                              });
-                            }
-                          },
-                          child: Row(
+                                _isAnimating = true;
+                            });
+                          }
+                        },
+                        child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               // 이전 에피로 이동 버튼
@@ -248,6 +240,9 @@ class _AppyPageState extends State<AppyPage> {
                                             RFID: RFIDS[preIndex],
                                             appyType: appyTypes[preIndex],
                                             appyName: appyNamesKo[preIndex],
+                                            level: appyLevels[preIndex],
+                                            gauge: preIndex,
+                                            snackCount: preIndex,
                                           ),
                                         ),
                                       );
@@ -280,6 +275,9 @@ class _AppyPageState extends State<AppyPage> {
                                             RFID: RFIDS[nextIndex],
                                             appyType: appyTypes[nextIndex],
                                             appyName: appyNamesKo[nextIndex],
+                                            level: appyLevels[nextIndex],
+                                            gauge: nextIndex,
+                                            snackCount: nextIndex,
                                           ),
                                         ),
                                       );
@@ -365,7 +363,6 @@ class _AppyPageState extends State<AppyPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              //프로그레스 바
                               LinearPercentIndicator(
                                 backgroundColor: AppColors.iconBackground,
                                 alignment: MainAxisAlignment.center,
@@ -373,19 +370,15 @@ class _AppyPageState extends State<AppyPage> {
                                 animation: true,
                                 animationDuration: 200,
                                 animateFromLastPercent: true,
-                                percent: currentProgressNum / maxSteps,
+                                percent: currentGauge / maxSteps,
                                 lineHeight: 28.0,
-                                // center: Text('$currentProgressNum',
-                                //     style: TextStyle(
-                                //       color: AppColors.textWhite,
-                                //     )),
                                 barRadius: const Radius.circular(15.0),
                                 progressColor: AppColors.accent,
                               ),
                               GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    currentCandyNum++;
+                                    currentSnackCount++;
                                   });
                                 },
                                 child: Image.asset(
@@ -399,14 +392,14 @@ class _AppyPageState extends State<AppyPage> {
                             height: 20,
                           ),
                           Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Stack(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Stack(
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        if (currentCandyNum > 0) {
+                                        if (currentSnackCount > 0) {
                                           _feed(widget.appyType); // 사탕 주기 로직 실행
                                         } else {
                                           ScaffoldMessenger.of(context)
@@ -454,7 +447,7 @@ class _AppyPageState extends State<AppyPage> {
                                           ),
                                           Container(
                                             height: 5,
-                                          ),
+                                          ),                       
                                           SizedBox(
                                             width: 105,
                                             child: const Center(
@@ -468,12 +461,11 @@ class _AppyPageState extends State<AppyPage> {
                                         ],
                                       ),
                                     ),
-                                    //사탕 개수 표시
                                     Positioned(
                                       top: 10,
                                       right: 10,
                                       child: Text(
-                                        "$currentCandyNum개",
+                                        "$currentSnackCount",
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -742,24 +734,25 @@ class _SpeechBubbleState extends State<SpeechBubble> {
   }
 }
 
-
 AppBar _buildAppBar(BuildContext context) {
   return AppBar(
     backgroundColor: Colors.transparent,
     toolbarHeight: 70,
     centerTitle: true,
     leading: IconButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      const HomePage()));
-        },
-        icon: const Icon(
-          Icons.arrow_back_ios,
-          size: IconSize.medium,
-          color: AppColors.icon,
-        )),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+      },
+      icon: const Icon(
+        Icons.arrow_back_ios,
+        size: IconSize.medium,
+        color: AppColors.icon,
+      ),
+    ),
   );
 }

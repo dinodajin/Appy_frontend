@@ -44,21 +44,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserRfids(String userId) async {
-    const String baseUrl = "http://192.168.0.54:8083/api/character/user-rfids";
-    final Uri uri = Uri.parse("$baseUrl?userId=$userId");
+  const String baseUrl = "http://192.168.0.54:8083/api/character/user-rfids";
+  final Uri uri = Uri.parse("$baseUrl?userId=$userId");
 
-    try {
-      final response = await http.get(uri);
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonResponse = json.decode(response.body);
-        return jsonResponse.map((item) => item as Map<String, dynamic>).toList();
-      } else {
-        throw Exception("Failed to fetch RFIDs. Status code: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching RFIDs: $e");
+  try {
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse = json.decode(response.body);
+      return jsonResponse.map((item) => item as Map<String, dynamic>).toList();
+    } else {
+      throw Exception("Failed to fetch RFIDs. Status code: ${response.statusCode}");
     }
+  } catch (e) {
+    throw Exception("Error fetching RFIDs: $e");
   }
+}
 
   Future<void> _loadUserData() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -196,7 +196,6 @@ Widget build(BuildContext context) {
                   left: _leftAnimations[index].value,
                   child: GestureDetector(
                     onTap: () {
-                      // 이미지 클릭 시 AppyPage로 이동
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -204,6 +203,9 @@ Widget build(BuildContext context) {
                             RFID: item['rfidId'],
                             appyName: item['characterName'],
                             appyType: item['characterType'],
+                            snackCount: item['snackCount'],
+                            gauge: item['gauge'],
+                            level: item['characterLevel'],
                           ),
                         ),
                       );
