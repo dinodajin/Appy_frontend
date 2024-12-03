@@ -31,7 +31,7 @@ class _GiftPageState extends State<GiftPage> {
       default:
         return "캐릭터의 선물함";
     }
-  }
+  } 
 
   String _getGiftImagePath(int characterId, int level) {
     // 이미지 경로 동적 생성
@@ -69,11 +69,14 @@ class _GiftPageState extends State<GiftPage> {
                   final level = index + 1; // 레벨 기준
                   if (level <= widget.characterLevel) {
                     // 잠금 해제된 아이템
+                      print("characterId${widget.characterId}");
+                      print("level: ${level}");
                     return GestureDetector(
                       onTap: () {
                         _onUnlockedItemTap(level);
                       },
                       child: _buildUnlockedItem(
+
                         _getGiftImagePath(widget.characterId, level),
                       ),
                     );
