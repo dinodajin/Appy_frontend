@@ -1,3 +1,4 @@
+import 'package:appy_app/pages/add_appy_page.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -5,9 +6,16 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'package:provider/provider.dart';
+import 'package:appy_app/providers/user_provider.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String rfid;
+
+  const ChatPage({
+    required this.rfid,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -18,6 +26,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final String apiUrl = 'http://192.168.0.54:8083/api/chat';
+
+  late String characterName;
+  late String characterNameKo; 
 
   Timer? _pollingTimer; // 폴링 타이머
 
@@ -32,6 +43,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     initializeDateFormatting('ko', null);
     WidgetsBinding.instance.addObserver(this);
 
+    _initializeCharacter();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchMessages().then((_) {
         _scrollToBottom(); // 데이터 로드 이후 스크롤 이동
@@ -40,6 +53,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
     // 5초 간격으로 서버에서 메시지 확인
     _startPolling();
+  }
+
+  void _initializeCharacter() {
+    final int index = RFIDS.indexOf(widget.rfid); // rfid 위치 찾기
+
+    characterName = appyNames[index];
+    characterNameKo = appyNamesKo[index];
   }
 
   void _startPolling() {
@@ -79,9 +99,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchMessages() async {
+
+     final userProvider = Provider.of<UserProvider>(context, listen: false);
+  final String userId = userProvider.userId;
+
     try {
       final response = await http.get(
-        Uri.parse('$apiUrl/messages'),
+        Uri.parse('$apiUrl/messages/user?userId=$userId'),
         headers: {'Accept': 'application/json; charset=UTF-8'},
       );
 
@@ -116,6 +140,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   }
 
   Future<void> _sendMessage(String content) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String userId = userProvider.userId;
     if (content.isEmpty) return;
     try {
       // 메시지 전송 전 UI에 즉시 추가
@@ -124,6 +150,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           "text": content,
           "time": DateTime.now().toIso8601String(),
           "type": "USER",
+          "userId": userId,
         });
         _messageController.clear(); // 입력창 초기화
         FocusManager.instance.primaryFocus?.unfocus(); // 키보드 닫기
@@ -132,8 +159,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
       final message = {
         'content': content,
-        'userId': 'user3@example.com',
         "sender": 'USER',
+        'userId': userId,
+        'rfid': widget.rfid,
       };
 
       final response = await http.post(
@@ -230,7 +258,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             BuildChatImage("assets/images/appy_levi_crop.png", size: 46),
             const SizedBox(width: 19),
             Text(
-              "레비",
+              characterNameKo,
               style: const TextStyle(
                 fontFamily: 'SUITE',
                 fontSize: TextSize.large,

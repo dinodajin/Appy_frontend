@@ -493,7 +493,9 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const ChatPage()));
+                                                 ChatPage(
+                                                  rfid: rfid,
+                                                )));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.all(3.0),
