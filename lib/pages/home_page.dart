@@ -1,17 +1,16 @@
 import 'dart:math';
-
+import 'dart:convert';
 import 'package:appy_app/pages/appy_page.dart';
 import 'package:appy_app/pages/module_map_page.dart';
 import 'package:appy_app/pages/setting_page.dart';
-import 'package:appy_app/widgets/appy.dart';
 import 'package:appy_app/widgets/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:appy_app/providers/user_provider.dart';
 
-//에피 모여있는 페이지
 class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -27,11 +26,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     {"top": 200, "left": 100},
     {"top": 350, "left": 200},
   ];
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _registeredItems = [];
 
-  // 애니메이션 duration 값을 지정
   final List<int> durations = [1500, 1800, 1800];
-
-  // 영역 제한 값 설정
   final double topMin = 200;
   final double topMax = 400;
   late double leftMin = 20;
@@ -40,36 +38,77 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
-    // 화면 크기에 따라 left 제한값 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final screenWidth = MediaQuery.of(context).size.width;
-      leftMin = 0;
-      leftMax = screenWidth - 100; // 이미지 크기(100)만큼 빼기
+      _loadUserData();
     });
+  }
 
-    for (var i = 0; i < _startPositions.length; i++) {
-      // 각각의 AnimationController 생성
+  Future<List<Map<String, dynamic>>> fetchUserRfids(String userId) async {
+  const String baseUrl = "http://192.168.0.54:8083/api/character/user-rfids";
+  final Uri uri = Uri.parse("$baseUrl?userId=$userId");
+
+  try {
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse = json.decode(response.body);
+      return jsonResponse.map((item) => item as Map<String, dynamic>).toList();
+    } else {
+      throw Exception("Failed to fetch RFIDs. Status code: ${response.statusCode}");
+    }
+  } catch (e) {
+    throw Exception("Error fetching RFIDs: $e");
+  }
+}
+
+  Future<void> _loadUserData() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    String userId = userProvider.userId;
+
+    try {
+      List<Map<String, dynamic>> rfids = await fetchUserRfids(userId);
+      for (int i = 0; i < rfids.length; i++) {
+        _startPositions.add({
+          "top": _random.nextDouble() * (topMax - topMin) + topMin,
+          "left": _random.nextDouble() * (leftMax - leftMin) + leftMin,
+        });
+      }
+
+      setState(() {
+        _registeredItems = rfids;
+        _isLoading = false;
+      });
+
+      _initAnimations();
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error fetching RFIDs: $e");
+    }
+  }
+
+  void _initAnimations() {
+    for (var i = 0; i < _registeredItems.length; i++) {
       final controller = AnimationController(
         vsync: this,
-        duration: Duration(milliseconds: durations[i]),
+        duration: Duration(milliseconds: durations[i % durations.length]),
       );
 
       _controllers.add(controller);
 
-      // 초기 애니메이션 설정
       _setNewAnimationValues(i);
 
-      // 애니메이션 상태 변경 감지 및 반복 실행
       controller.addStatusListener((status) {
         if (status == AnimationStatus.completed ||
             status == AnimationStatus.dismissed) {
           _setNewAnimationValues(i);
-          controller.forward(from: 0); // 다시 애니메이션 시작
+          controller.forward(from: 0);
         }
       });
 
-      controller.forward(); // 애니메이션 시작
+      controller.forward();
     }
   }
 
@@ -83,23 +122,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ? _leftAnimations[index].value
             : _startPositions[index]["left"]!;
 
-    // 새로운 랜덤 위치 생성 (범위 확장)
-    double newTop = startTop + _random.nextInt(200) - 100; // 더 멀리 이동
+    double newTop = startTop + _random.nextInt(200) - 100;
     double newLeft = startLeft + _random.nextInt(200) - 100;
 
-    // 경계값에 도달한 경우 반대 방향으로 이동
     if (newTop <= topMin || newTop >= topMax) {
-      newTop += _random.nextInt(30) * (_random.nextBool() ? 1 : -1); // 반대 방향 이동
+      newTop += _random.nextInt(30) * (_random.nextBool() ? 1 : -1);
     }
     if (newLeft <= leftMin || newLeft >= leftMax) {
       newLeft += _random.nextInt(30) * (_random.nextBool() ? 1 : -1);
     }
 
-    // 경계값을 벗어나지 않도록 제한
     newTop = newTop.clamp(topMin, topMax);
     newLeft = newLeft.clamp(leftMin, leftMax);
 
-    // 애니메이션 업데이트
     setState(() {
       if (index < _topAnimations.length) {
         _topAnimations[index] = Tween<double>(begin: startTop, end: newTop)
@@ -116,7 +151,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             .chain(CurveTween(curve: Curves.easeInOut))
             .animate(_controllers[index]));
       }
-
+      
       // 새로운 시작 위치 업데이트
       _startPositions[index]["top"] = newTop;
       _startPositions[index]["left"] = newLeft;
@@ -125,7 +160,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    // 모든 AnimationController 해제
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -133,110 +167,58 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.homeBackground,
-      appBar: _buildHomeAppBar(context),
-      body: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            child: SizedBox.expand(
-              child: Image.asset(
-                "assets/images/home_background.png",
-                fit: BoxFit.cover,
-              ),
-            ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: AppColors.homeBackground,
+    appBar: _buildHomeAppBar(context),
+    body: Stack(
+      children: [
+        SizedBox.expand(
+          child: Image.asset(
+            "assets/images/home_background.png",
+            fit: BoxFit.cover,
           ),
-          //등록된 에피 불러와서 이미지로 모두 표시하기
-          //각 이미지에 해당하는 에피 아이디 연결
-          //1번째 에피
-          AnimatedBuilder(
-            animation: _controllers[0],
-            builder: (context, child) {
-              return Positioned(
-                top: _topAnimations[0].value,
-                left: _leftAnimations[0].value,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppyPage(
-                          RFID: "02719612895",
-                          appyType: 2,
+        ),
+        // 로딩 표시
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator())
+        else
+          // 등록된 아이템 표시
+          ..._registeredItems.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            
+            return AnimatedBuilder(
+              animation: _controllers[index],
+              builder: (context, child) {
+                return Positioned(
+                  top: _topAnimations[index].value,
+                  left: _leftAnimations[index].value,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AppyPage(
+                            userRfids: _registeredItems,
+                            initialIndex: index,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_${appyNames[2]}.png",
-                    height: appySize[2],
+                      );
+                    },
+                    child: Image.asset(
+                      "assets/images/appy_${item['characterName']}.png", // 캐릭터 이미지
+                      height: 100,
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-
-          //2번째 에피
-          AnimatedBuilder(
-            animation: _controllers[1],
-            builder: (context, child) {
-              return Positioned(
-                top: _topAnimations[1].value,
-                left: _leftAnimations[1].value,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppyPage(
-                          RFID: "195307716957",
-                          appyType: 1,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_${appyNames[1]}.png",
-                    height: appySize[1],
-                  ),
-                ),
-              );
-            },
-          ),
-
-          //3번째 에피
-          AnimatedBuilder(
-            animation: _controllers[2],
-            builder: (context, child) {
-              return Positioned(
-                top: _topAnimations[2].value,
-                left: _leftAnimations[2].value,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppyPage(
-                          RFID: "1761222116188",
-                          appyType: 0,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Image.asset(
-                    "assets/images/appy_${appyNames[0]}.png",
-                    height: appySize[0],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+                );
+              },
+            );
+          }).toList(),
+      ],
+    ),
+  );
+}
 }
 
 AppBar _buildHomeAppBar(BuildContext context) {
