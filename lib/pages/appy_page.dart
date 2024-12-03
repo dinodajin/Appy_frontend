@@ -558,10 +558,8 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => GiftPage(
-                                                  characterId: RFIDS.indexOf(
-                                                          widget.RFID) +
-                                                      1,
-                                                      characterLevel: currentLevel,
+                                                  characterId: RFIDS.indexOf(widget.RFID) + 1,
+                                                  characterLevel: currentLevel,
                                                 )));
                                   },
                                   style: ElevatedButton.styleFrom(
