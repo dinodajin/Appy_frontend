@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:appy_app/pages/chat_page.dart';
@@ -18,7 +19,7 @@ import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/widgets/appy.dart';
 
 class AppyPage extends StatefulWidget {
-  final String RFID;
+  final String rfid;
   final int appyType;
   final String appyName;
   final int snackCount;
@@ -26,7 +27,7 @@ class AppyPage extends StatefulWidget {
   final int level;
 
   const AppyPage({
-    required this.RFID,
+    required this.rfid,
     required this.appyType,
     required this.appyName,
     required this.snackCount,
@@ -41,10 +42,10 @@ class AppyPage extends StatefulWidget {
 
 class _AppyPageState extends State<AppyPage> {
   late String randomText;
-  bool _isAnimating = true; // 애니메이션 상태 플래그
-  bool _isNewChat = false; // 새로운 채팅
+  bool _isAnimating = true;
+  bool _isNewChat = false;
   bool _isNewGift = false;
-  String? lastText; // 랜덤 텍스트 선택 중복 방지용
+  String? lastText;
 
   int currentSnackCount = 0;
   int currentGauge = 0;
@@ -72,35 +73,66 @@ class _AppyPageState extends State<AppyPage> {
     String newText;
     do {
       newText = textList[random.nextInt(textList.length)];
-    } while (newText == lastText); // 이전 텍스트와 동일하면 다시 선택
+    } while (newText == lastText);
     randomText = newText;
     lastText = newText;
   }
 
+  // 간식 및 레벨, 게이지 업데이트 API 호출
+  Future<void> _updateAppyStatus() async {
+    final apiUrl = "http://192.168.0.54:8083/api/character/updateAppy";
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    String userId = userProvider.userId;
+
+    try {
+      final response = await http.patch(
+      Uri.parse("$apiUrl?userId=${userId}"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "RFID_ID": widget.rfid,
+          "SNACK_COUNT": currentSnackCount,
+          "GAUGE": currentGauge,
+          "CHARACTER_LEVEL": currentLevel,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("간식, 게이지, 레벨 업데이트 성공");
+      } else {
+        print("간식, 게이지, 레벨 업데이트 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("에러 발생: $e");
+    }
+  }
+
   // 사탕 주기 로직
-  void _feed(appyType) {
+  void _feed(appyType) async {
     if (currentSnackCount > 0) {
       setState(() {
         currentSnackCount--;
-        currentGauge += 1; // Gauge 증가
+        currentGauge++;
+        _getRandomText(snackTexts[appyType]);
 
-        // 말풍선 텍스트를 간식 텍스트 중 랜덤하게 선택
-      _getRandomText(snackTexts[appyType]);
         if (currentGauge >= maxSteps) {
-        showCustomErrorDialog(
-          context: context,
-          message: "${appyNamesKo[appyType]}의 선물이 도착했습니다.\n선물함을 확인해주세요.",
-          buttonText: "확인",
-          onConfirm: () {
-            Navigator.of(context).pop();
-            setState(() {
+          currentGauge = 0;
+          currentLevel++;
+
+          showCustomErrorDialog(
+            context: context,
+            message: "${appyNamesKo[appyType]}의 선물이 도착했습니다.\n선물함을 확인해주세요.",
+            buttonText: "확인",
+            onConfirm: () {
+              Navigator.of(context).pop();
+              setState(() {
           _isNewGift = true;
          });
-          },
-        ); // 최대값 도달 시 팝업 호출
-        currentGauge = 0; // 진행 상태 초기화
-      }
-    });
+            },
+          );
+        }
+      });
+
+      await _updateAppyStatus(); // 업데이트 동기화
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -135,7 +167,6 @@ class _AppyPageState extends State<AppyPage> {
       ),
       body: Stack(
         children: [
-          // 배경 색상 나누기
           Column(
             children: [
               Container(
@@ -149,14 +180,11 @@ class _AppyPageState extends State<AppyPage> {
               ),
             ],
           ),
-          // 에피 영역과 상호작용 영역 나누기
           Column(
             children: [
-              // 배경 이미지 및 캐릭터
               Stack(
                 children: [
-                  // 하단 그림자 영역
-                        Positioned(
+                  Positioned(
                           bottom: 0, // 하단에 위치
                           left: 0,
                           right: 0,
@@ -180,50 +208,47 @@ class _AppyPageState extends State<AppyPage> {
                             ),
                           ),
                         ),
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    child: SizedBox(
-                      height: 370,
-                      child: Image.asset(
-                        "assets/images/appy_background2.png",
-                        fit: BoxFit.fitHeight,
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                        child: SizedBox(
+                          height: 370,
+                          child: Image.asset(
+                            "assets/images/appy_background2.png",
+                            fit: BoxFit.fitHeight,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  // 에피
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                      // 랜덤 말풍선
-                      SizedBox(
-                        height: 90,
-                        child: SpeechBubble(
-                          text: randomText,
-                          onAnimationEnd: () {
-                            setState(() {
-                              _isAnimating = false;
-                            });
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [                    
+                            SizedBox(
+                              height: 90,
+                              child: SpeechBubble(
+                                text: randomText,
+                                onAnimationEnd: () {
+                                  setState(() {
+                                    _isAnimating = false;
+                                  });
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 20,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                if (!_isAnimating) {
+                                  setState(() {
+                                    _getRandomText(characterTexts[
+                                        widget.appyType]); //말풍선 클릭시 텍스트 변경
+                                    _isAnimating = true;
+                                });
+                            }
                           },
-                        ),
-                      ),
-                        Container(
-                          height: 20,
-                        ),
-                        // 에피 영역
-                        GestureDetector(
-                          onTap: () {
-                            if (!_isAnimating) {
-                              setState(() {
-                                _getRandomText(characterTexts[
-                                    widget.appyType]); //말풍선 클릭시 텍스트 변경
-                                _isAnimating = true;
-                            });
-                          }
-                        },
-                        child: Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               // 이전 에피로 이동 버튼
@@ -231,13 +256,13 @@ class _AppyPageState extends State<AppyPage> {
                                   onPressed: () {
                                     // 이전 인덱스가 있는 경우
                                     int preIndex =
-                                        RFIDS.indexOf(widget.RFID) - 1;
+                                        RFIDS.indexOf(widget.rfid) - 1;
                                     if (preIndex >= 0) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            RFID: RFIDS[preIndex],
+                                            rfid: RFIDS[preIndex],
                                             appyType: appyTypes[preIndex],
                                             appyName: appyNamesKo[preIndex],
                                             level: appyLevels[preIndex],
@@ -260,19 +285,19 @@ class _AppyPageState extends State<AppyPage> {
                               Image.asset(
                                 "assets/images/${appySideImages[widget.appyType]}",
                                 height: 240,
-                              ),
+                                 ),
                               // 다음 에피로 이동 버튼
                               IconButton(
                                   onPressed: () {
                                     // 다음 인덱스가 있는 경우
                                     int nextIndex =
-                                        RFIDS.indexOf(widget.RFID) + 1;
+                                        RFIDS.indexOf(widget.rfid) + 1;
                                     if (nextIndex < RFIDS.length) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => AppyPage(
-                                            RFID: RFIDS[nextIndex],
+                                            rfid: RFIDS[nextIndex],
                                             appyType: appyTypes[nextIndex],
                                             appyName: appyNamesKo[nextIndex],
                                             level: appyLevels[nextIndex],
@@ -353,45 +378,45 @@ class _AppyPageState extends State<AppyPage> {
                         ),
                       ),
                     ],
-                  ),
-                  Padding(
-                      padding: AppPadding.body,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              LinearPercentIndicator(
-                                backgroundColor: AppColors.iconBackground,
-                                alignment: MainAxisAlignment.center,
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                animation: true,
-                                animationDuration: 200,
-                                animateFromLastPercent: true,
-                                percent: currentGauge / maxSteps,
-                                lineHeight: 28.0,
-                                barRadius: const Radius.circular(15.0),
-                                progressColor: AppColors.accent,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    currentSnackCount++;
-                                  });
-                                },
-                                child: Image.asset(
-                                  "assets/icons/gift_box_question.png",
-                                  height: 40,
+                    ),
+                    Padding(
+                        padding: AppPadding.body,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                LinearPercentIndicator(
+                                  backgroundColor: AppColors.iconBackground,
+                                  alignment: MainAxisAlignment.center,
+                                  width: MediaQuery.of(context).size.width * 0.8,
+                                  animation: true,
+                                  animationDuration: 200,
+                                  animateFromLastPercent: true,
+                                  percent: currentGauge / maxSteps,
+                                  lineHeight: 28.0,
+                                  barRadius: const Radius.circular(15.0),
+                                  progressColor: AppColors.accent,
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      currentSnackCount++;
+                                    });
+                                  },
+                                  child: Image.asset(
+                                    "assets/icons/gift_box_question.png",
+                                    height: 40,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -399,7 +424,7 @@ class _AppyPageState extends State<AppyPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        if (currentSnackCount > 0) {
+                                         if (currentSnackCount > 0) {
                                           _feed(widget.appyType); // 사탕 주기 로직 실행
                                         } else {
                                           ScaffoldMessenger.of(context)
@@ -558,7 +583,7 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => GiftPage(
-                                                  characterId: RFIDS.indexOf(widget.RFID) + 1,
+                                                  characterId: RFIDS.indexOf(widget.rfid) + 1,
                                                   characterLevel: currentLevel,
                                                 )));
                                   },
