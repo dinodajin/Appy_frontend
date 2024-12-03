@@ -19,20 +19,13 @@ import 'package:appy_app/widgets/theme.dart';
 import 'package:appy_app/widgets/appy.dart';
 
 class AppyPage extends StatefulWidget {
-  final String rfid;
-  final int appyType;
-  final String appyName;
-  final int snackCount;
-  final int gauge;
-  final int level;
+  final List<Map<String, dynamic>> userRfids; // 사용자 RFID 목록과 관련 데이터를 포함
+  final int initialIndex; // 초기 인덱스
 
   const AppyPage({
-    required this.rfid,
-    required this.appyType,
-    required this.appyName,
-    required this.snackCount,
-    required this.gauge,
-    required this.level,
+    required this.userRfids,
+    this.initialIndex = 0,
+
     Key? key,
   }) : super(key: key);
 
@@ -47,25 +40,48 @@ class _AppyPageState extends State<AppyPage> {
   bool _isNewGift = false;
   String? lastText;
 
-  int currentSnackCount = 0;
-  int currentGauge = 0;
-  int currentLevel = 0;
+  late int currentIndex; // 현재 인덱스
+  late String rfid;
+  late int characterType;
+  late String characterName;
+  late int currentSnackCount;
+  late int currentGauge;
+  late int currentLevel;
+
   final maxSteps = 7;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
-    _getRandomText(characterTexts[widget.appyType]);
+    currentIndex = widget.initialIndex;
+    _initializeData(currentIndex);
+    _getRandomText(characterTexts[characterType]);
   }
 
-  void _initializeData() {
+  void _initializeData(int index) {
+    final currentData = widget.userRfids[index];
+    print(currentData);
     setState(() {
-      currentSnackCount = widget.snackCount;
-      currentGauge = widget.gauge;
-      currentLevel = widget.level;
+      rfid = currentData['rfidId'];
+      characterType = currentData['characterType'];
+      characterName = currentData['characterName'];
+      currentSnackCount = currentData['snackCount'];
+      currentGauge = currentData['gauge'];
+      currentLevel = currentData['characterLevel'];
     });
   }
+
+  void _updatePage(bool isNext) {
+  setState(() {
+    currentIndex = isNext
+        ? (currentIndex + 1) % widget.userRfids.length // 원형 반복
+        : (currentIndex - 1 + widget.userRfids.length) % widget.userRfids.length; // 역방향 원형 반복
+
+    _initializeData(currentIndex);
+    _getRandomText(characterTexts[characterType]); // 캐릭터 타입에 따라 말풍선 텍스트 변경
+  });
+}
+
 
   // 랜덤 텍스트 선택
   void _getRandomText(List<String> textList) {
@@ -89,7 +105,7 @@ class _AppyPageState extends State<AppyPage> {
       Uri.parse("$apiUrl?userId=${userId}"),
         headers: {"Content-Type": "application/json"},
         body: json.encode({
-          "RFID_ID": widget.rfid,
+          "RFID_ID": rfid,
           "SNACK_COUNT": currentSnackCount,
           "GAUGE": currentGauge,
           "CHARACTER_LEVEL": currentLevel,
@@ -107,12 +123,12 @@ class _AppyPageState extends State<AppyPage> {
   }
 
   // 사탕 주기 로직
-  void _feed(appyType) async {
+  void _feed(characterType) async {
     if (currentSnackCount > 0) {
       setState(() {
         currentSnackCount--;
         currentGauge++;
-        _getRandomText(snackTexts[appyType]);
+        _getRandomText(snackTexts[characterType]);
 
         if (currentGauge >= maxSteps) {
           currentGauge = 0;
@@ -120,7 +136,7 @@ class _AppyPageState extends State<AppyPage> {
 
           showCustomErrorDialog(
             context: context,
-            message: "${appyNamesKo[appyType]}의 선물이 도착했습니다.\n선물함을 확인해주세요.",
+            message: "${appyNamesKo[characterType]}의 선물이 도착했습니다.\n선물함을 확인해주세요.",
             buttonText: "확인",
             onConfirm: () {
               Navigator.of(context).pop();
@@ -243,7 +259,7 @@ class _AppyPageState extends State<AppyPage> {
                                 if (!_isAnimating) {
                                   setState(() {
                                     _getRandomText(characterTexts[
-                                        widget.appyType]); //말풍선 클릭시 텍스트 변경
+                                        characterType]); //말풍선 클릭시 텍스트 변경
                                     _isAnimating = true;
                                 });
                             }
@@ -251,71 +267,37 @@ class _AppyPageState extends State<AppyPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // 이전 에피로 이동 버튼
+                              // 이전 에피
                               IconButton(
-                                  onPressed: () {
-                                    // 이전 인덱스가 있는 경우
-                                    int preIndex =
-                                        RFIDS.indexOf(widget.rfid) - 1;
-                                    if (preIndex >= 0) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AppyPage(
-                                            rfid: RFIDS[preIndex],
-                                            appyType: appyTypes[preIndex],
-                                            appyName: appyNamesKo[preIndex],
-                                            level: appyLevels[preIndex],
-                                            gauge: preIndex,
-                                            snackCount: preIndex,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      // 동작 안하기
-                                    }
-                                  },
-                                  icon: FaIcon(
-                                    FontAwesomeIcons.caretLeft,
-                                    size: IconSize.large,
-                                    color:
-                                        AppColors.background.withOpacity(0.8),
-                                  )),
+                                icon: FaIcon(
+                                  FontAwesomeIcons.caretLeft,
+                                  size: IconSize.large,
+                                  color: AppColors.background.withOpacity(0.8),
+                                ),
+                                onPressed: () {
+                                  if (widget.userRfids.length > 1) {
+                                    _updatePage(false);
+                                  }
+                                },
+                              ),
                               // 에피 이미지
                               Image.asset(
-                                "assets/images/${appySideImages[widget.appyType]}",
+                                "assets/images/${appySideImages[characterType]}",
                                 height: 240,
                                  ),
-                              // 다음 에피로 이동 버튼
+                              // 다음 에피
                               IconButton(
-                                  onPressed: () {
-                                    // 다음 인덱스가 있는 경우
-                                    int nextIndex =
-                                        RFIDS.indexOf(widget.rfid) + 1;
-                                    if (nextIndex < RFIDS.length) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AppyPage(
-                                            rfid: RFIDS[nextIndex],
-                                            appyType: appyTypes[nextIndex],
-                                            appyName: appyNamesKo[nextIndex],
-                                            level: appyLevels[nextIndex],
-                                            gauge: nextIndex,
-                                            snackCount: nextIndex,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      // 동작 안하기
-                                    }
-                                  },
-                                  icon: FaIcon(
-                                    FontAwesomeIcons.caretRight,
-                                    size: IconSize.large,
-                                    color:
-                                        AppColors.background.withOpacity(0.8),
-                                  )),
+                                icon: FaIcon(
+                                  FontAwesomeIcons.caretRight,
+                                  size: IconSize.large,
+                                  color: AppColors.background.withOpacity(0.8),
+                                ),
+                                onPressed: () {
+                                  if (widget.userRfids.length > 1) {
+                                    _updatePage(false);
+                                  }
+                                },
+                              )
                             ],
                           ),
                         ),
@@ -333,7 +315,7 @@ class _AppyPageState extends State<AppyPage> {
                       });
                     },
                     child: Text(
-                      appyNamesKo[widget.appyType],
+                      appyNamesKo[characterType],
                       style: const TextStyle(
                         fontSize: TextSize.large,
                         fontWeight: FontWeight.bold,
@@ -425,7 +407,7 @@ class _AppyPageState extends State<AppyPage> {
                                     ElevatedButton(
                                       onPressed: () {
                                          if (currentSnackCount > 0) {
-                                          _feed(widget.appyType); // 사탕 주기 로직 실행
+                                          _feed(characterType); // 사탕 주기 로직 실행
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(const SnackBar(
@@ -583,7 +565,7 @@ class _AppyPageState extends State<AppyPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => GiftPage(
-                                                  characterId: RFIDS.indexOf(widget.rfid) + 1,
+                                                  characterId: RFIDS.indexOf(rfid) + 1,
                                                   characterLevel: currentLevel,
                                                 )));
                                   },

@@ -200,12 +200,8 @@ Widget build(BuildContext context) {
                         context,
                         MaterialPageRoute(
                           builder: (context) => AppyPage(
-                            rfid: item['rfidId'],
-                            appyName: item['characterName'],
-                            appyType: item['characterType'],
-                            snackCount: item['snackCount'],
-                            gauge: item['gauge'],
-                            level: item['characterLevel'],
+                            userRfids: _registeredItems,
+                            initialIndex: index,
                           ),
                         ),
                       );
