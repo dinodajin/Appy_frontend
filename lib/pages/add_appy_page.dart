@@ -59,7 +59,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> fetchLatestRfid() async {
-    const latestUrl = "http://192.168.0.50:8083/api/module-connect/latest";
+    const latestUrl = "http://192.168.0.97:8083/api/module-connect/latest";
 
     while (!_isDetected) {
       try {
@@ -99,7 +99,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> resetLatestRfid() async {
-    const url = "http://192.168.0.50:8083/api/module-connect/reset-latest";
+    const url = "http://192.168.0.97:8083/api/module-connect/reset-latest";
     try {
       final response = await http.post(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -113,7 +113,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> registerRfid(String moduleId) async {
-    const url = "http://192.168.0.50:8083/api/module-connect/rfid/register";
+    const url = "http://192.168.0.97:8083/api/module-connect/rfid/register";
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -133,7 +133,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
 
   Future<void> registerAppy(String userId, String moduleId,
       Map<String, dynamic> characterData) async {
-    const url = "http://192.168.0.50:8083/api/character/register";
+    const url = "http://192.168.0.97:8083/api/character/register";
 
     try {
       final response = await http.post(

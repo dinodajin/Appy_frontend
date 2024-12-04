@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserRfids(String userId) async {
-    const String baseUrl = "http://192.168.0.50:8083/api/character/user-rfids";
+    const String baseUrl = "http://192.168.0.97:8083/api/character/user-rfids";
     final Uri uri = Uri.parse("$baseUrl?userId=$userId");
 
     try {

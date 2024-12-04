@@ -77,7 +77,7 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    final url = Uri.parse("http://192.168.0.50:8083/api/users");
+    final url = Uri.parse("http://192.168.0.97:8083/api/users");
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       "USER_ID": email,
@@ -190,7 +190,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         print("유효한 이메일 형식입니다.");
 
                         final checkUrl = Uri.parse(
-                            "http://192.168.0.50:8083/api/users/check/$email");
+                            "http://192.168.0.97:8083/api/users/check/$email");
                         final headers = {"Content-Type": "application/json"};
 
                         try {
