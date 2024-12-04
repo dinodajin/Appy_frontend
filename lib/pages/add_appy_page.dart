@@ -13,7 +13,11 @@ List<String> RFIDS = ["02719612895", "195307716957", "1761222116188"];
 List<int> appyTypes = [0, 1, 2];
 final List<String> appyNames = ["nubi", "bobby", "levi"];
 final List<String> appyNamesKo = ["누비", "바비", "레비"];
-final List<String> appyImages = ["appy_nubi.png", "appy_bobby.png", "appy_levi.png"];
+final List<String> appyImages = [
+  "appy_nubi.png",
+  "appy_bobby.png",
+  "appy_levi.png"
+];
 
 // RFID 매칭 함수
 Map<String, dynamic> getCharacterData(String rfid) {
@@ -55,7 +59,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> fetchLatestRfid() async {
-    const latestUrl = "http://192.168.0.54:8083/api/module-connect/latest";
+    const latestUrl = "http://192.168.0.50:8083/api/module-connect/latest";
 
     while (!_isDetected) {
       try {
@@ -72,8 +76,10 @@ class _AddAppyPageState extends State<AddAppyPage> {
             characterNameKo = characterData["nameKo"];
             characterImage = characterData["image"];
 
-            final userId = Provider.of<UserProvider>(context, listen: false).userId;
-            final moduleId = Provider.of<UserProvider>(context, listen: false).moduleId;
+            final userId =
+                Provider.of<UserProvider>(context, listen: false).userId;
+            final moduleId =
+                Provider.of<UserProvider>(context, listen: false).moduleId;
 
             await registerRfid(moduleId);
             await registerAppy(userId, moduleId, characterData);
@@ -93,7 +99,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> resetLatestRfid() async {
-    const url = "http://192.168.0.54:8083/api/module-connect/reset-latest";
+    const url = "http://192.168.0.50:8083/api/module-connect/reset-latest";
     try {
       final response = await http.post(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -107,7 +113,7 @@ class _AddAppyPageState extends State<AddAppyPage> {
   }
 
   Future<void> registerRfid(String moduleId) async {
-    const url = "http://192.168.0.54:8083/api/module-connect/rfid/register";
+    const url = "http://192.168.0.50:8083/api/module-connect/rfid/register";
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -117,15 +123,17 @@ class _AddAppyPageState extends State<AddAppyPage> {
       if (response.statusCode == 200) {
         print("RFID 등록 성공: ${response.body}");
       } else {
-        print("RFID 등록 실패: ${response.statusCode}, ${utf8.decode(response.bodyBytes)}");
+        print(
+            "RFID 등록 실패: ${response.statusCode}, ${utf8.decode(response.bodyBytes)}");
       }
     } catch (e) {
       print("서버 요청 실패: $e");
     }
   }
 
-  Future<void> registerAppy(String userId, String moduleId, Map<String, dynamic> characterData) async {
-    const url = "http://192.168.0.54:8083/api/character/register";
+  Future<void> registerAppy(String userId, String moduleId,
+      Map<String, dynamic> characterData) async {
+    const url = "http://192.168.0.50:8083/api/character/register";
 
     try {
       final response = await http.post(
@@ -145,7 +153,8 @@ class _AddAppyPageState extends State<AddAppyPage> {
       if (response.statusCode == 200) {
         print("Appy 등록 성공: ${response.body}");
       } else {
-        print("Appy 등록 실패: ${response.statusCode}, ${utf8.decode(response.bodyBytes)}");
+        print(
+            "Appy 등록 실패: ${response.statusCode}, ${utf8.decode(response.bodyBytes)}");
       }
     } catch (e) {
       print("서버 요청 실패: $e");

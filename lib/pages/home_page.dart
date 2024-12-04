@@ -44,21 +44,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserRfids(String userId) async {
-  const String baseUrl = "http://192.168.0.54:8083/api/character/user-rfids";
-  final Uri uri = Uri.parse("$baseUrl?userId=$userId");
+    const String baseUrl = "http://192.168.0.50:8083/api/character/user-rfids";
+    final Uri uri = Uri.parse("$baseUrl?userId=$userId");
 
-  try {
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonResponse = json.decode(response.body);
-      return jsonResponse.map((item) => item as Map<String, dynamic>).toList();
-    } else {
-      throw Exception("Failed to fetch RFIDs. Status code: ${response.statusCode}");
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
+      } else {
+        throw Exception(
+            "Failed to fetch RFIDs. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching RFIDs: $e");
     }
-  } catch (e) {
-    throw Exception("Error fetching RFIDs: $e");
   }
-}
 
   Future<void> _loadUserData() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -151,7 +154,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             .chain(CurveTween(curve: Curves.easeInOut))
             .animate(_controllers[index]));
       }
-      
+
       // 새로운 시작 위치 업데이트
       _startPositions[index]["top"] = newTop;
       _startPositions[index]["left"] = newLeft;
@@ -167,58 +170,58 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: AppColors.homeBackground,
-    appBar: _buildHomeAppBar(context),
-    body: Stack(
-      children: [
-        SizedBox.expand(
-          child: Image.asset(
-            "assets/images/home_background.png",
-            fit: BoxFit.cover,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.homeBackground,
+      appBar: _buildHomeAppBar(context),
+      body: Stack(
+        children: [
+          SizedBox.expand(
+            child: Image.asset(
+              "assets/images/home_background.png",
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        // 로딩 표시
-        if (_isLoading)
-          const Center(child: CircularProgressIndicator())
-        else
-          // 등록된 아이템 표시
-          ..._registeredItems.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            
-            return AnimatedBuilder(
-              animation: _controllers[index],
-              builder: (context, child) {
-                return Positioned(
-                  top: _topAnimations[index].value,
-                  left: _leftAnimations[index].value,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AppyPage(
-                            userRfids: _registeredItems,
-                            initialIndex: index,
+          // 로딩 표시
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator())
+          else
+            // 등록된 아이템 표시
+            ..._registeredItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+
+              return AnimatedBuilder(
+                animation: _controllers[index],
+                builder: (context, child) {
+                  return Positioned(
+                    top: _topAnimations[index].value,
+                    left: _leftAnimations[index].value,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AppyPage(
+                              userRfids: _registeredItems,
+                              initialIndex: index,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Image.asset(
-                      "assets/images/appy_${item['characterName']}.png", // 캐릭터 이미지
-                      height: 100,
+                        );
+                      },
+                      child: Image.asset(
+                        "assets/images/appy_${item['characterName']}.png", // 캐릭터 이미지
+                        height: 100,
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          }).toList(),
-      ],
-    ),
-  );
-}
+                  );
+                },
+              );
+            }).toList(),
+        ],
+      ),
+    );
+  }
 }
 
 AppBar _buildHomeAppBar(BuildContext context) {

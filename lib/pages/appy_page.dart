@@ -95,7 +95,7 @@ class _AppyPageState extends State<AppyPage> {
 
   // 간식 및 레벨, 게이지 업데이트 API 호출
   Future<void> _updateAppyStatus() async {
-    final apiUrl = "http://192.168.0.54:8083/api/character/updateAppy";
+    final apiUrl = "http://192.168.0.50:8083/api/character/updateAppy";
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     String userId = userProvider.userId;
 
