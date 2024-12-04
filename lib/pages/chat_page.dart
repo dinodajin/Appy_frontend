@@ -25,7 +25,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   final List<Map<String, String>> messages = [];
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final String apiUrl = 'http://192.168.130.234:8083/api/chat';
+  final String apiUrl = 'http://192.168.219.108:8083/api/chat';
 
   late String characterName;
   late String characterNameKo; 
@@ -99,45 +99,60 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchMessages() async {
-
-     final userProvider = Provider.of<UserProvider>(context, listen: false);
+  final userProvider = Provider.of<UserProvider>(context, listen: false);
   final String userId = userProvider.userId;
 
-    try {
-      final response = await http.get(
-        Uri.parse('$apiUrl/messages/user?userId=$userId'),
-        headers: {'Accept': 'application/json; charset=UTF-8'},
-      );
+  try {
+    // 디버깅: API 호출 전 URL과 파라미터 출력
+    final String requestUrl = '$apiUrl/messages/user?userId=$userId&rfid=${widget.rfid}';
+    print('Fetching messages from: $requestUrl');
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          messages.clear();
-          messages.addAll(data.map((item) {
-            final Map<String, dynamic> message = item as Map<String, dynamic>;
-            return {
-              'text': message['content'] as String? ?? '',
-              'time': message['createdAt'] as String? ??
-                  DateTime.now().toIso8601String(),
-              'type': message['sender'] == 'USER' ? 'USER' : 'AI',
-            };
-          }).toList());
-          messages.sort((a, b) =>
-              DateTime.parse(a['time']!).compareTo(DateTime.parse(b['time']!)));
-        });
+    final response = await http.get(
+      Uri.parse(requestUrl),
+      headers: {'Accept': 'application/json; charset=UTF-8'},
+    );
 
-        // 메시지 로드 후 스크롤을 최하단으로 이동
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollToBottom();
-        });
-      } else {
-        throw Exception(
-            'Failed to load messages. Status code: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching messages: $error');
+    // 디버깅: 응답 상태 코드 출력
+    print('Response status code: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      // 디버깅: 응답 본문 출력
+      print('Response body: ${utf8.decode(response.bodyBytes)}');
+
+      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      setState(() {
+        messages.clear();
+        messages.addAll(data.map((item) {
+          final Map<String, dynamic> message = item as Map<String, dynamic>;
+          return {
+            'text': message['content'] as String? ?? '',
+            'time': message['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+            'type': message['sender'] == 'USER' ? 'USER' : 'AI',
+            'rfid': message['rfidId'] as String? ?? '',
+          };
+        }).toList());
+
+        // 디버깅: 파싱된 메시지 데이터 출력
+        print('Parsed messages: $messages');
+
+        messages.sort((a, b) =>
+            DateTime.parse(a['time']!).compareTo(DateTime.parse(b['time']!)));
+      });
+
+      // 메시지 로드 후 스크롤을 최하단으로 이동
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
+    } else {
+      throw Exception(
+          'Failed to load messages. Status code: ${response.statusCode}');
     }
+  } catch (error) {
+    // 디버깅: 에러 출력
+    print('Error fetching messages: $error');
   }
+}
+
 
   Future<void> _sendMessage(String content) async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -151,6 +166,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           "time": DateTime.now().toIso8601String(),
           "type": "USER",
           "userId": userId,
+          "rfid": widget.rfid,
         });
         _messageController.clear(); // 입력창 초기화
         FocusManager.instance.primaryFocus?.unfocus(); // 키보드 닫기

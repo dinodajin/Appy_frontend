@@ -31,10 +31,9 @@ class _GiftPageState extends State<GiftPage> {
       default:
         return "캐릭터의 선물함";
     }
-  }
+  } 
 
   String _getGiftImagePath(int characterId, int level) {
-    // 이미지 경로 동적 생성
     return "assets/icons/gift/gift_${characterId}_${level}.png";
   }
 
@@ -44,7 +43,7 @@ class _GiftPageState extends State<GiftPage> {
       appBar: BuildBigAppBar(
         context,
         _getAppBarTitle(widget.characterId),
-        "assets/icons/gift_box.png", // 아이콘은 동일
+        "assets/icons/gift_box.png",
       ),
       body: SafeArea(
         child: Padding(
@@ -74,6 +73,7 @@ class _GiftPageState extends State<GiftPage> {
                         _onUnlockedItemTap(level);
                       },
                       child: _buildUnlockedItem(
+
                         _getGiftImagePath(widget.characterId, level),
                       ),
                     );
